@@ -56,6 +56,22 @@ matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
 #das ist nur ein test um das an einem einfachen Beispiel nachzuvollziehen
 
+#aufgabe 6
+
+#Funktion um einen 3 dimensionalen Array aus den 3 Zeilenmatrizen zu generieren
+generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
+
+    #array (zeile,spalte,dimension)
+    threeDimArray <- array(c(vmMatrix, samplesMatrix, ressourcenMatrix), c(nrow(vmMatrix), ncol(vmMatrix), 3))
+
+    return(threeDimArray)
+}
+
+#der 3d Array mit aus cpu mem und net
+threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
+
+#hier fehlt noch die Einbindung einer Library und ein 3D-Plott
+
 
 #Aufgabe 8 
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
