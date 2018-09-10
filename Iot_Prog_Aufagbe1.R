@@ -37,7 +37,26 @@ matrixCPU <- fillMatrix(dfCPU, matrixCPURaw)
 matrixMem <- fillMatrix(dfMem, matrixMemRaw)
 matrixNet <- fillMatrix(dfNet, matrixNetRaw)
 
-<<<<<<< HEAD
+
+#Aufgabe 4
+#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
+#jede Spalte der matrix wird als messreihe betrachtet
+#element der korrelationsmatrix ist der Korrelationswert fÃ¼r jeweil eine messreihe
+calcCorrelation <- function(A){
+  result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
+  for(i in 1:ncol(A)){
+    for(j in 1:ncol(A)){
+      result[i,j] = cor(A[,i],A[,j])
+    }
+  }
+  return(result)
+}
+matrixCPUCOR <- calcCorrelation(matrixCPU)
+matrixMemCOR <- calcCorrelation(matrixMem)
+matrixNetCOR <- calcCorrelation(matrixNet)
+#das ist nur ein test um das an einem einfachen Beispiel nachzuvollziehen
+
+
 #Aufgabe 8 
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
 testAufg8 <- cor(matrixCPU, matrixMem)
@@ -58,22 +77,3 @@ calcCorrelationTwoMat <- function(mat1, mat2){
   }
   return(correlations)
 }
-=======
-#Aufgabe 4
-#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
-#jede Spalte der matrix wird als messreihe betrachtet
-#element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
-calcCorrelation <- function(A){
-  result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
-  for(i in 1:ncol(A)){
-    for(j in 1:ncol(A)){
-      result[i,j] = cor(A[,i],A[,j])
-    }
-  }
-  return(result)
-}
-matrixCPUCOR <- calcCorrelation(matrixCPU)
-matrixMemCOR <- calcCorrelation(matrixMem)
-matrixNetCOR <- calcCorrelation(matrixNet)
-#das ist nur ein test um das an einem einfachen Beispiel nachzuvollziehen
->>>>>>> fa0824e02c35a2db97df9aed1f3ed116eb776c87
