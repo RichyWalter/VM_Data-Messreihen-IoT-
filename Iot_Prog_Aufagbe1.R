@@ -38,19 +38,19 @@ matrixMem <- fillMatrix(dfMem, matrixMemRaw)
 matrixNet <- fillMatrix(dfNet, matrixNetRaw)
 
 #Aufgabe 4
-#element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
+#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
+#jede Spalte der matrix wird als messreihe betrachtet
+#element der korrelationsmatrix ist der Korrelationswert fÃ¼r jeweil eine messreihe
 calcCorrelation <- function(A){
-  A=t(A)
   result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
   for(i in 1:ncol(A)){
     for(j in 1:ncol(A)){
-      #cor()betrachtet spalten als messreihen->
-      #deswegen müssen wir die Matrixen transponieren
       result[i,j] = cor(A[,i],A[,j])
     }
   }
-  return(t(result))
+  return(result)
 }
+
 matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
@@ -63,6 +63,10 @@ myScale <- function(A){
   }
   return (A)
 }
+
+matequal <- function(x, y)
+  return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && all(x == y))
+
 #small test begin
 m = matrix((1:9),3,3)
 scale(m)
@@ -73,14 +77,17 @@ if(matequal(scale(m),myScale(m))){
   print("myScale() failed")
 
 #end test
-matequal <- function(x, y)
-  return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && all(x == y))
 
+#vergleich beginn
 matrixCPUScaled <- t(myScale(t(matrixCPU))) 
 if(matequal(matrixCPUScaled,t(scale(t(matrixCPU))))){
-  print("cpu scale and myscale reesults are equal")
-}else
+  print("cpu scale and myscale results are equal")
+}else{
   print("myScale() failed")
+}
+matrixCPUScaled[,1]
+blub = t(scale(t(matrixCPU)))
+blub[,1]
 
 matrixMemScaled <- t(myScale(t(matrixMem)))
 if(matequal(matrixMemScaled,t(scale(t(matrixMem))))){
@@ -93,6 +100,24 @@ if(matequal(matrixNetScaled,t(scale(t(matrixNet))))){
   print("Net scale and myscale reesults are equal")
 }else
   print("myScale() failed")
+#vergleich ende
+
+
+#aufgabe 6
+
+#Funktion um einen 3 dimensionalen Array aus den 3 Zeilenmatrizen zu generieren
+generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
+
+    #array (zeile,spalte,dimension)
+    threeDimArray <- array(c(vmMatrix, samplesMatrix, ressourcenMatrix), c(nrow(vmMatrix), ncol(vmMatrix), 3))
+
+    return(threeDimArray)
+}
+
+#der 3d Array mit aus cpu mem und net
+threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
+
+#hier fehlt noch die Einbindung einer Library und ein 3D-Plott
 
 
 #Aufgabe 8 
