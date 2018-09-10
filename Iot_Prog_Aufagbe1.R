@@ -36,3 +36,18 @@ matrixNetRaw <- generateMatrix(dfNet)
 matrixCPU <- fillMatrix(dfCPU, matrixCPURaw)
 matrixMem <- fillMatrix(dfMem, matrixMemRaw)
 matrixNet <- fillMatrix(dfNet, matrixNetRaw)
+
+
+#aufgabe 6
+
+#Funktion um einen 3 dimensionalen Array aus den 3 Zeilenmatrizen zu generieren
+generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
+
+    #array (zeile,spalte,dimension)
+    threeDimArray <- array(c(vmMatrix, samplesMatrix, ressourcenMatrix), c(nrow(vmMatrix), ncol(vmMatrix), 3))
+
+    return(threeDimArray)
+}
+
+threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
+#print(threeDimArray)
