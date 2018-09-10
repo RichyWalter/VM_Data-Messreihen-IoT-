@@ -4,20 +4,43 @@
 #Oliver Graetsch, Franz Huebner,Richard Arnold, Richard Walter
 
 
-#Aufagbe 1
+#Aufagbe 2
 #read CSV
-#DF_cpu <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
-#DF_mem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
-#DF_net <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
+dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
+dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
+dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
+
+
+#Aufgabe 3
+#generate matrix
+generateMatrix <-function(inputDF){
+  countSample <- dim(inputDF)[1]
+  countVM <- dim(inputDF)[2]
+  matOut <- matrix(0, nrow= countVM, ncol=countSample)
+  return(matOut) 
+}
+
+#fill the matrix with values
+fillMatrix <- function(inDF, inMat){
+  for (i in 1:(dim(inDF)[1])) {
+    for (j in 1:(dim(inDF)[2])) {
+      inMat[j,i] <- inDF[i, j]
+    }
+  }
+  return(inMat)
+}
+
+matrixCPURaw <- generateMatrix(dfCPU)
+matrixMemRaw <- generateMatrix(dfMem)
+matrixNetRaw <- generateMatrix(dfNet)
+matrixCPU <- fillMatrix(dfCPU, matrixCPURaw)
+matrixMem <- fillMatrix(dfMem, matrixMemRaw)
+matrixNet <- fillMatrix(dfNet, matrixNetRaw)
 
 #Aufgabe 4
-A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
-A
+#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
 #jede Spalte der matrix wird als messreihe betrachtet
 #element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
-calcKorrelationsMatrix <- function(A){
-  cor(A)
-}
 calcCorrelation <- function(A){
   result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
   for(i in 1:ncol(A)){
@@ -27,7 +50,7 @@ calcCorrelation <- function(A){
   }
   return(result)
 }
+matrixCPUCOR <- calcCorrelation(matrixCPU)
+matrixMemCOR <- calcCorrelation(matrixMem)
+matrixNetCOR <- calcCorrelation(matrixNet)
 #das ist nur ein test um das an einem einfachen Beispiel nachzuvollziehen
-calcKorrelationsMatrix(A)
-result = calcCorrelation(A)
-result
