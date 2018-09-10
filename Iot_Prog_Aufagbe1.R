@@ -55,6 +55,46 @@ matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
 
+#Aufgabe 5
+myScale <- function(A){
+  for(i in 1:ncol(A)){
+    b =A[,i]
+    A[,i] = (b - mean(b))/ sd(b) 
+  }
+  return (A)
+}
+#small test begin
+m = matrix((1:9),3,3)
+scale(m)
+myScale(m)
+if(matequal(scale(m),myScale(m))){
+  print("cpu scale and myscale results are equal")
+}else
+  print("myScale() failed")
+
+#end test
+matequal <- function(x, y)
+  return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && all(x == y))
+
+matrixCPUScaled <- t(myScale(t(matrixCPU))) 
+if(matequal(matrixCPUScaled,t(scale(t(matrixCPU))))){
+  print("cpu scale and myscale reesults are equal")
+}else
+  print("myScale() failed")
+
+matrixMemScaled <- t(myScale(t(matrixMem)))
+if(matequal(matrixMemScaled,t(scale(t(matrixMem))))){
+  print("c scale and myscale reesults are equal")
+}else
+  print("myScale() failed")
+
+matrixNetScaled <- t(myScale(t(matrixNet)))
+if(matequal(matrixNetScaled,t(scale(t(matrixNet))))){
+  print("Net scale and myscale reesults are equal")
+}else
+  print("myScale() failed")
+
+
 #Aufgabe 8 
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
 testAufg8 <- cor(matrixCPU, matrixMem)
