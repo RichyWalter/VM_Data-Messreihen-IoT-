@@ -38,19 +38,19 @@ matrixMem <- fillMatrix(dfMem, matrixMemRaw)
 matrixNet <- fillMatrix(dfNet, matrixNetRaw)
 
 #Aufgabe 4
-#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
-#jede Spalte der matrix wird als messreihe betrachtet
 #element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
 calcCorrelation <- function(A){
+  A=t(A)
   result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
   for(i in 1:ncol(A)){
     for(j in 1:ncol(A)){
+      #cor()betrachtet spalten als messreihen->
+      #deswegen müssen wir die Matrixen transponieren
       result[i,j] = cor(A[,i],A[,j])
     }
   }
-  return(result)
+  return(t(result))
 }
 matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
-#das ist nur ein test um das an einem einfachen Beispiel nachzuvollziehen
