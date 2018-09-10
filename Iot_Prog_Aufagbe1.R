@@ -38,16 +38,42 @@ matrixMem <- fillMatrix(dfMem, matrixMemRaw)
 matrixNet <- fillMatrix(dfNet, matrixNetRaw)
 
 
-#aufgabe 6
-
-#Funktion um einen 3 dimensionalen Array aus den 3 Zeilenmatrizen zu generieren
-generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
-
-    #array (zeile,spalte,dimension)
-    threeDimArray <- array(c(vmMatrix, samplesMatrix, ressourcenMatrix), c(nrow(vmMatrix), ncol(vmMatrix), 3))
-
-    return(threeDimArray)
+#Aufgabe 4
+#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
+#jede Spalte der matrix wird als messreihe betrachtet
+#element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
+calcCorrelation <- function(A){
+  result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
+  for(i in 1:ncol(A)){
+    for(j in 1:ncol(A)){
+      result[i,j] = cor(A[,i],A[,j])
+    }
+  }
+  return(result)
 }
+matrixCPUCOR <- calcCorrelation(matrixCPU)
+matrixMemCOR <- calcCorrelation(matrixMem)
+matrixNetCOR <- calcCorrelation(matrixNet)
+#das ist nur ein test um das an einem einfachen Beispiel nachzuvollziehen
 
-threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
-#print(threeDimArray)
+
+#Aufgabe 8 
+#Berechnung der Korrelation zwischen CPU und MEM Auslastung
+testAufg8 <- cor(matrixCPU, matrixMem)
+calcCorrelationTwoMat <- function(mat1, mat2){
+  vecMat1 <- vector()
+  vecMat2 <- vector()
+  
+  correlations <- vector()
+  for (j in 1:dim(mat1)[1]){
+    
+    #Werte aus Matrizen in temporaere Vektoren uebertragen
+    for (i in 1:dim(mat1)[2]){
+      vecMat1[i] <- mat1[j,i]
+      vecMat2[i] <- mat2[j,i]
+    }
+    #Korrelation berechnen un in einen Vektor schreiben
+    correlations[j] <- cor(vecMat1, vecMat2)
+  }
+  return(correlations)
+}
