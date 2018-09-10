@@ -41,7 +41,7 @@ matrixNet <- fillMatrix(dfNet, matrixNetRaw)
 #Aufgabe 4
 #A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
 #jede Spalte der matrix wird als messreihe betrachtet
-#element der korrelationsmatrix ist der Korrelationswert fÃ¼r jeweil eine messreihe
+#element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
 calcCorrelation <- function(A){
   result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
   for(i in 1:ncol(A)){
@@ -55,6 +55,34 @@ matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
 #das ist nur ein test um das an einem einfachen Beispiel nachzuvollziehen
+
+
+#Aufgabe 7a
+#Durchschnittliche CPU-Auslastung berechnen
+Means <- rowMeans(matrixCPU[,-1])
+#Index der Elemente mit dem höchsten Durchschnitt ermittlen
+firstElem <- (which(Means==sort(Means,partial=length(Means))[length(Means)]))
+secondElem <- (which(Means==sort(Means,partial=length(Means)-1)[length(Means)-1]))
+thirdElem <- (which(Means==sort(Means,partial=length(Means)-2)[length(Means)-2]))
+fourthElem <- (which(Means==sort(Means,partial=length(Means)-3)[length(Means)-3]))
+fifthElem <- (which(Means==sort(Means,partial=length(Means)-4)[length(Means)-4]))
+
+#Verteilungsfunktion ermittlen
+getDensityOfRow <- function(row){
+  Vect <- vector()
+  for (i in 1:dim(matrixCPU)[2]){
+    Vect[i] <- matrixCPU[row,i]
+  }
+  densityOfRow <- density(Vect)
+  return(densityOfRow)
+}
+
+#Ergebnisse ploten 
+plot(getDensityOfRow(firstElem), col = 'green')
+lines(getDensityOfRow(secondElem), col ='blue')
+lines(getDensityOfRow(thirdElem), col ='red')
+lines(getDensityOfRow(fourthElem), col ='magenta')
+lines(getDensityOfRow(fifthElem), col ='orange')
 
 
 #Aufgabe 8 
