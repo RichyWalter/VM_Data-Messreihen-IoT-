@@ -54,3 +54,24 @@ calcCorrelation <- function(A){
 matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
+
+#Aufgabe 8 
+#Berechnung der Korrelation zwischen CPU und MEM Auslastung
+testAufg8 <- cor(matrixCPU, matrixMem)
+calcCorrelationTwoMat <- function(mat1, mat2){
+  vecMat1 <- vector()
+  vecMat2 <- vector()
+  
+  correlations <- vector()
+  for (j in 1:dim(mat1)[1]){
+    
+    #Werte aus Matrizen in temporaere Vektoren uebertragen
+    for (i in 1:dim(mat1)[2]){
+      vecMat1[i] <- mat1[j,i]
+      vecMat2[i] <- mat2[j,i]
+    }
+    #Korrelation berechnen un in einen Vektor schreiben
+    correlations[j] <- cor(vecMat1, vecMat2)
+  }
+  return(correlations)
+}
