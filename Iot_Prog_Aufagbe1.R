@@ -1,18 +1,25 @@
 #Programmierung Aufgabe-1
 #Internet der Dinge
-#Gruppe 1 
-#Oliver Graetsch, Franz Huebner,Richard Arnold, Richard Walter
+#Gruppe 1: Oliver Graetsch, Franz Huebner,Richard Arnold, Richard Walter
 
+#Einbindung von Plotly zur besseren Visualisierung der Metriken
+library(plotly)
 
-#Aufagbe 2
-#read CSV
+#Aufagbe 1-2  
+#Einlesen der csv Dateien und Erzeugung der frames
 dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
 
 
+#Namen der Spalten für die Plots herausnehmen und speichern
+colNamesCPU <- colnames(dfCPU)
+colNamesMem <- colnames(dfMem)
+colNamesNet <- colnames(dfNet)
+
+
 #Aufgabe 3
-#generate matrix
+#Generierung einer leeren Matrix mit den gegeben Groeßen
 generateMatrix <-function(inputDF){
   countSample <- dim(inputDF)[1]
   countVM <- dim(inputDF)[2]
@@ -20,7 +27,7 @@ generateMatrix <-function(inputDF){
   return(matOut) 
 }
 
-#fill the matrix with values
+#Befüllung der Matrix mit Werten
 fillMatrix <- function(inDF, inMat){
   for (i in 1:(dim(inDF)[1])) {
     for (j in 1:(dim(inDF)[2])) {
@@ -30,14 +37,51 @@ fillMatrix <- function(inDF, inMat){
   return(inMat)
 }
 
+
+#Erstellung der Matrizen
 matrixCPURaw <- generateMatrix(dfCPU)
 matrixMemRaw <- generateMatrix(dfMem)
 matrixNetRaw <- generateMatrix(dfNet)
+
+#Befuellung der Matrizen mit den Werten aus den globalen Variablen
 matrixCPU <- fillMatrix(dfCPU, matrixCPURaw)
 matrixMem <- fillMatrix(dfMem, matrixMemRaw)
 matrixNet <- fillMatrix(dfNet, matrixNetRaw)
 
+#Funktion um Plots zu den Matrizen zu erzeugen
+createHeatmap <- function(inputMatrix, inputColNames, graphName) {
+
+    #Font definieren
+    f <- list(
+        family = "Courier New, monospace",
+        size = 18,
+        color = "#7f7f7f"
+    )
+
+    #x-Achse Beschriften
+    x <- list(
+        title = "Messwerte",
+        titlefont = f
+    )
+
+    #Plot generieren
+    p <- plot_ly(
+        y = inputColNames,
+        z = inputMatrix, colors = colorRamp(c("green", "red")), type = "heatmap"
+    ) %>%
+    layout(title= graphName, xaxis = x)
+
+    #HTML-File lokal erzeugen
+    htmlwidgets::saveWidget(as.widget(p), paste(graphName,".html",sep = ""))
+
+}
+
+createHeatmap(matrixCPU,colNamesCPU,"CPUHeatmap")
+createHeatmap(matrixMem,colNamesMem,"MEMORYHeatmap")
+createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
+
 #Aufgabe 4
+
 #A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
 #jede Spalte der matrix wird als messreihe betrachtet
 #element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
@@ -117,7 +161,7 @@ generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
 #der 3d Array mit aus cpu mem und net
 threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
-#hier fehlt noch die Einbindung einer Library und ein 3D-Plott
+
 
 
 #Aufgabe 7a
