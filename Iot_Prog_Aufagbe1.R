@@ -168,30 +168,41 @@ threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 #Aufgabe 7a
 #Durchschnittliche CPU-Auslastung berechnen
 Means <- rowMeans(matrixCPU[,-1])
-#Index der Elemente mit dem h�chsten Durchschnitt ermittlen
-firstElem <- (which(Means==sort(Means,partial=length(Means))[length(Means)]))
-secondElem <- (which(Means==sort(Means,partial=length(Means)-1)[length(Means)-1]))
-thirdElem <- (which(Means==sort(Means,partial=length(Means)-2)[length(Means)-2]))
-fourthElem <- (which(Means==sort(Means,partial=length(Means)-3)[length(Means)-3]))
-fifthElem <- (which(Means==sort(Means,partial=length(Means)-4)[length(Means)-4]))
 
-#Verteilungsfunktion ermittlen
-getDensityOfRow <- function(row){
+#Index eines Elemtes im Vektor anhand seiner Groesse bestimmen
+getRankingOfElement <- function(inputVector, position){
+  #if(position != 0){
+    position <- position - 1  
+  #} 
+  rankedElem <- (which(inputVector==sort(inputVector,partial=length(inputVector)-position)[length(inputVector)-position]))
+  return(rankedElem)
+}
+
+#Dichtefunktion ermittlen
+getDensityOfRow <- function(row, rowMatrix){
   Vect <- vector()
-  for (i in 1:dim(matrixCPU)[2]){
-    Vect[i] <- matrixCPU[row,i]
+  for (i in 1:dim(rowMatrix)[2]){
+    Vect[i] <- rowMatrix[row,i]
   }
   densityOfRow <- density(Vect)
   return(densityOfRow)
 }
 
-#Ergebnisse ploten
-par(mfrow=c(2,3))
-plot(getDensityOfRow(firstElem), col = 'green', main = 'erstes Element')
-plot(getDensityOfRow(secondElem), col ='blue', main = 'zweites Element')
-plot(getDensityOfRow(thirdElem), col ='red', main = 'drittes Element')
-plot(getDensityOfRow(fourthElem), col ='magenta', main = 'viertes Element')
-plot(getDensityOfRow(fifthElem), col ='orange', main = 'f�nftes Element')
+plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix){
+  #Ergebnisse ploten
+  # Dafuer zunaechst den Index der Elemente mit den hoechsten Werten ermittlen
+  par(mfrow=c(2,3))
+  plot(getDensityOfRow(getRankingOfElement(indexVector,1),elemMatrix), col = 'green', main = 'erstes Element')
+  plot(getDensityOfRow(getRankingOfElement(indexVector,2),elemMatrix), col ='blue', main = 'zweites Element')
+  plot(getDensityOfRow(getRankingOfElement(indexVector,3),elemMatrix), col ='red', main = 'drittes Element')
+  plot(getDensityOfRow(getRankingOfElement(indexVector,4),elemMatrix), col ='magenta', main = 'viertes Element')
+  plot(getDensityOfRow(getRankingOfElement(indexVector,5),elemMatrix), col ='orange', main = 'fuenftes Element')
+}
+
+plotDensityOfFirstFiveElements(Means, matrixCPU)
+
+#Aufgabe 7b
+variance <- apply(matrixCPU, 1, var)
 
 
 #Aufgabe 8 
