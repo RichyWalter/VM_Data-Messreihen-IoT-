@@ -140,12 +140,13 @@ getDensityOfRow <- function(row){
   return(densityOfRow)
 }
 
-#Ergebnisse ploten 
-plot(getDensityOfRow(firstElem), col = 'green')
-lines(getDensityOfRow(secondElem), col ='blue')
-lines(getDensityOfRow(thirdElem), col ='red')
-lines(getDensityOfRow(fourthElem), col ='magenta')
-lines(getDensityOfRow(fifthElem), col ='orange')
+#Ergebnisse ploten
+par(mfrow=c(2,3))
+plot(getDensityOfRow(firstElem), col = 'green', main = 'erstes Element')
+plot(getDensityOfRow(secondElem), col ='blue', main = 'zweites Element')
+plot(getDensityOfRow(thirdElem), col ='red', main = 'drittes Element')
+plot(getDensityOfRow(fourthElem), col ='magenta', main = 'viertes Element')
+plot(getDensityOfRow(fifthElem), col ='orange', main = 'fünftes Element')
 
 
 #Aufgabe 8 
