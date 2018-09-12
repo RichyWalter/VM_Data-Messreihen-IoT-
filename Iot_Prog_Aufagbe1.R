@@ -165,10 +165,7 @@ threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
 
 
-#Aufgabe 7a
-#Durchschnittliche CPU-Auslastung berechnen
-Means <- rowMeans(matrixCPU[,-1])
-
+#Aufgabe 7
 #Index eines Elemtes im Vektor anhand seiner Groesse bestimmen
 getRankingOfElement <- function(inputVector, position){
   #if(position != 0){
@@ -188,7 +185,7 @@ getDensityOfRow <- function(row, rowMatrix){
   return(densityOfRow)
 }
 
-plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix){
+plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 'First 5 Elements'){
   #Ergebnisse ploten
   # Dafuer zunaechst den Index der Elemente mit den hoechsten Werten ermittlen
   par(mfrow=c(2,3))
@@ -197,12 +194,25 @@ plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix){
   plot(getDensityOfRow(getRankingOfElement(indexVector,3),elemMatrix), col ='red', main = 'drittes Element')
   plot(getDensityOfRow(getRankingOfElement(indexVector,4),elemMatrix), col ='magenta', main = 'viertes Element')
   plot(getDensityOfRow(getRankingOfElement(indexVector,5),elemMatrix), col ='orange', main = 'fuenftes Element')
+  title(plotTitle,line = -1, outer = TRUE)
 }
 
-plotDensityOfFirstFiveElements(Means, matrixCPU)
+#Aufagbe 7a
+#Durchschnittliche CPU-Auslastung berechnen 
+means <- rowMeans(matrixCPU[,-1])
+plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert')
 
 #Aufgabe 7b
-variance <- apply(matrixCPU, 1, var)
+#Varianz der CPU-Auslatung
+varianceCPU <- apply(matrixCPU, 1, var)
+#Varianz der Speicher-Auslastung
+varianceMem <- apply(matrixMem, 1, var)
+#Varianz der Netz-Auslastung
+varianceNet <- apply(matrixNet, 1, var)
+#Plotten der Dichtefunktion der CPU-Auslastung für die VMs mit der höchsten Varianz
+plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz')
+plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz')
+plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz')
 
 
 #Aufgabe 8 
