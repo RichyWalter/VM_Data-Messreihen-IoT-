@@ -5,6 +5,7 @@
 #Einbindung von Plotly zur besseren Visualisierung der Metriken
 library(plotly)
 
+
 #Aufagbe 1-2  
 #Einlesen der csv Dateien und Erzeugung der frames
 dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
@@ -12,14 +13,14 @@ dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
 
 
-#Namen der Spalten für die Plots herausnehmen und speichern
+#Namen der Spalten fï¿½r die Plots herausnehmen und speichern
 colNamesCPU <- colnames(dfCPU)
 colNamesMem <- colnames(dfMem)
 colNamesNet <- colnames(dfNet)
 
 
 #Aufgabe 3
-#Generierung einer leeren Matrix mit den gegeben Groeßen
+#Generierung einer leeren Matrix mit den gegeben Groeï¿½en
 generateMatrix <-function(inputDF){
   countSample <- dim(inputDF)[1]
   countVM <- dim(inputDF)[2]
@@ -27,7 +28,7 @@ generateMatrix <-function(inputDF){
   return(matOut) 
 }
 
-#Befüllung der Matrix mit Werten
+#Befï¿½llung der Matrix mit Werten
 fillMatrix <- function(inDF, inMat){
   for (i in 1:(dim(inDF)[1])) {
     for (j in 1:(dim(inDF)[2])) {
@@ -84,7 +85,7 @@ createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 
 #A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
 #jede Spalte der matrix wird als messreihe betrachtet
-#element der korrelationsmatrix ist der Korrelationswert für jeweil eine messreihe
+#element der korrelationsmatrix ist der Korrelationswert fï¿½r jeweil eine messreihe
 calcCorrelation <- function(A){
   result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
   for(i in 1:ncol(A)){
@@ -167,7 +168,7 @@ threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 #Aufgabe 7a
 #Durchschnittliche CPU-Auslastung berechnen
 Means <- rowMeans(matrixCPU[,-1])
-#Index der Elemente mit dem höchsten Durchschnitt ermittlen
+#Index der Elemente mit dem hï¿½chsten Durchschnitt ermittlen
 firstElem <- (which(Means==sort(Means,partial=length(Means))[length(Means)]))
 secondElem <- (which(Means==sort(Means,partial=length(Means)-1)[length(Means)-1]))
 thirdElem <- (which(Means==sort(Means,partial=length(Means)-2)[length(Means)-2]))
@@ -190,7 +191,7 @@ plot(getDensityOfRow(firstElem), col = 'green', main = 'erstes Element')
 plot(getDensityOfRow(secondElem), col ='blue', main = 'zweites Element')
 plot(getDensityOfRow(thirdElem), col ='red', main = 'drittes Element')
 plot(getDensityOfRow(fourthElem), col ='magenta', main = 'viertes Element')
-plot(getDensityOfRow(fifthElem), col ='orange', main = 'fünftes Element')
+plot(getDensityOfRow(fifthElem), col ='orange', main = 'fï¿½nftes Element')
 
 
 #Aufgabe 8 
