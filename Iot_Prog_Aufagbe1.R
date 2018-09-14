@@ -180,6 +180,8 @@ threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
 
 #Aufgabe 7
+#Plotten Sie die Dichtefunktion der CPU-Auslastung fuer die folgenden virtuellen Maschinen auf:
+
 #Index eines Elemtes im Vektor anhand seiner Groesse bestimmen
 getRankingOfElement <- function(inputVector, position){
   #if(position != 0){
@@ -213,11 +215,15 @@ plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 
 }
 
 #Aufagbe 7a
+#Die fuenf virtuellen Maschinen, deren durchschnittliche CPU-Auslastung am hoechsten ist
+
 #Durchschnittliche CPU-Auslastung berechnen 
 means <- rowMeans(matrixCPU[,-1])
 plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert')
 
 #Aufgabe 7b
+#Die fuenf virtuellen Maschinen, deren Abweichungen am hoechsten sind
+
 #Varianz der CPU-Auslatung
 varianceCPU <- apply(matrixCPU, 1, var)
 #Varianz der Speicher-Auslastung
@@ -231,6 +237,8 @@ plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Au
 
 
 #Aufgabe 8 
+#Gibt es eine Korrelation zwischen der Auslastung von CPU und Mem? Demostrieren Sie quantitatiy
+
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
 testAufg8 <- cor(matrixCPU, matrixMem)
 calcCorrelationTwoMat <- function(mat1, mat2){
@@ -251,4 +259,5 @@ calcCorrelationTwoMat <- function(mat1, mat2){
   return(correlations)
 }
 correlationMatrix <- calcCorrelationTwoMat(matrixCPU, matrixMem)
+#Barplott der Korrelationen fuer jede VM
 barplot(correlationMatrix, ylim = c(-0.2, 0.2), names.arg = colNamesCPU, las = 2)
