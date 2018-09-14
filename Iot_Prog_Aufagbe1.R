@@ -250,3 +250,5 @@ calcCorrelationTwoMat <- function(mat1, mat2){
   }
   return(correlations)
 }
+correlationMatrix <- calcCorrelationTwoMat(matrixCPU, matrixMem)
+barplot(correlationMatrix, ylim = c(-0.2, 0.2), names.arg = colNamesCPU, las = 2)
