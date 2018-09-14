@@ -7,8 +7,9 @@ library(plotly)
 
 
 #Aufagbe 1-2
-#Einlesen der csv Dateien und Erzeugung der frames
 #Lesen Sie die Messreihen und speichern Sie sie als Datenrahmen (Data Frame).
+
+#Einlesen der csv Dateien und Erzeugung der frames
 dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
@@ -21,6 +22,10 @@ colNamesNet <- colnames(dfNet)
 
 
 #Aufgabe 3
+#Generiere NxM Matrizen aus den Datenrahmen. 
+#N ist die Anzahl der virtuellen Maschinen und M ist die Anzahl der Samples.
+#Es gibt also drei Matrizen: eine fuer die CPU, eine fuer MEM und eine fuer NET. 
+
 #Generierung einer leeren Matrix mit den gegeben Groessen
 generateMatrix <-function(inputDF){
   countSample <- dim(inputDF)[1]
@@ -83,10 +88,12 @@ createHeatmap(matrixMem,colNamesMem,"MEMORYHeatmap")
 createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 
 #Aufgabe 4
+#Generieren eine Korrelationsmatrix(ATA) für jede Rohmatrix. 
+#Lesen Sie ueber eine Korrelationmatrix und erklaeren Sie ihre Bedeutung
+#(verwenden Sie statistische Werkzeuge fuer ihre Diskussion)
 
-#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
-#jede Spalte der matrix wird als messreihe betrachtet
-#element der korrelationsmatrix ist der Korrelationswert fuer jeweils eine messreihe
+#Jede Spalte der Matrix wird als Messreihe betrachtet.
+#Element der Korrelationsmatrix ist der Korrelationswert fuer jeweils eine Messreihe.
 calcCorrelation <- function(A){
   result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
   for(i in 1:ncol(A)){
@@ -97,11 +104,17 @@ calcCorrelation <- function(A){
   return(result)
 }
 
+#Korrelationsmatrizen für die Ressourcen
 matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
 
 #Aufgabe 5
+#Erstellen Sie eine standardisierte Matrix fuer jede Rohmatrix. Es gibt eine Standardfunktion namens scale,
+#die eine standartisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
+#Dokumentieren Sie Ihre Beobachtung.
+
+#Eigene Funktion um standardisierte Matrix zu erzeugen
 myScale <- function(A){
   for(i in 1:ncol(A)){
     b =A[,i]
@@ -110,57 +123,58 @@ myScale <- function(A){
   return (A)
 }
 
-matequal <- function(x, y)
+#Vergleich zweier Matrizen
+matEqual <- function(x, y)
   return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && all(x == y))
 
-#small test begin
-m = matrix((1:9),3,3)
-scale(m)
-myScale(m)
-if(matequal(scale(m),myScale(m))){
-  print("cpu scale and myscale results are equal")
-}else
-  print("myScale() failed")
+# #Vergleich der Matrizen
+# m = matrix((1:9),3,3)
+# scale(m)
+# myScale(m)
+# if(matEqual(scale(m),myScale(m))){
+#   print("Die Matrizen der integrierte Funktion und der eigenen Funktion sind gleich")
+# }else
+#   print("myScale() failed")
 
-#end test
 
-#vergleich beginn
+#Vergleich der Funktionen
 matrixCPUScaled <- t(myScale(t(matrixCPU))) 
-if(matequal(matrixCPUScaled,t(scale(t(matrixCPU))))){
-  print("cpu scale and myscale results are equal")
+if(matEqual(matrixCPUScaled,t(scale(t(matrixCPU))))){
+  print("Die Matrizen der integrierte Funktion und der eigenen Funktion sind gleich")
 }else{
-  print("myScale() failed")
+  print("eigene Funktion fehlerhaft")
 }
 matrixCPUScaled[,1]
 blub = t(scale(t(matrixCPU)))
 blub[,1]
 
 matrixMemScaled <- t(myScale(t(matrixMem)))
-if(matequal(matrixMemScaled,t(scale(t(matrixMem))))){
+if(matEqual(matrixMemScaled,t(scale(t(matrixMem))))){
   print("c scale and myscale reesults are equal")
 }else
   print("myScale() failed")
 
 matrixNetScaled <- t(myScale(t(matrixNet)))
-if(matequal(matrixNetScaled,t(scale(t(matrixNet))))){
+if(matEqual(matrixNetScaled,t(scale(t(matrixNet))))){
   print("Net scale and myscale reesults are equal")
 }else
   print("myScale() failed")
-#vergleich ende
 
 
-#aufgabe 6
+#Aufgabe 6
+#Generieren Sie ein 3-d-Array aus den drei Zeilenmatrizen(VMS vs Samples vs Ressourcen)
 
-#Funktion um einen 3 dimensionalen Array aus den 3 Zeilenmatrizen zu generieren
+#Funktion um ein 3 dimensionales Feld(Array) aus den 3 Zeilenmatrizen zu generieren
 generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
 
-    #array (zeile,spalte,dimension)
+    #Array (Zeile,Spalte,Dimension)
     threeDimArray <- array(c(vmMatrix, samplesMatrix, ressourcenMatrix), c(nrow(vmMatrix), ncol(vmMatrix), 3))
 
     return(threeDimArray)
 }
 
-#der 3d Array mit aus cpu mem und net
+#Der 3d Array aus CPU, Mem und Net
+threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
 #HTML-File lokal erzeugen
 
@@ -185,6 +199,7 @@ getDensityOfRow <- function(row, rowMatrix){
   return(densityOfRow)
 }
 
+#Verteilungsfunktion der groessten Elemente einer Ressourcenmatrix plotten
 plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 'First 5 Elements'){
   #Ergebnisse ploten
   # Dafuer zunaechst den Index der Elemente mit den hoechsten Werten ermittlen
