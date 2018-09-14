@@ -230,7 +230,7 @@ varianceCPU <- apply(matrixCPU, 1, var)
 varianceMem <- apply(matrixMem, 1, var)
 #Varianz der Netz-Auslastung
 varianceNet <- apply(matrixNet, 1, var)
-#Plotten der Dichtefunktion der CPU-Auslastung f�r die VMs mit der h�chsten Varianz
+#Plotten der Dichtefunktion der CPU-Auslastung fuer die VMs mit der hoechsten Varianz
 plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz')
 plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz')
 plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz')
