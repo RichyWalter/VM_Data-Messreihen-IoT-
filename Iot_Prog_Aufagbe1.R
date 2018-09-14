@@ -8,6 +8,7 @@ library(plotly)
 
 #Aufagbe 1-2
 #Einlesen der csv Dateien und Erzeugung der frames
+#Lesen Sie die Messreihen und speichern Sie sie als Datenrahmen (Data Frame).
 dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
@@ -208,7 +209,7 @@ varianceCPU <- apply(matrixCPU, 1, var)
 varianceMem <- apply(matrixMem, 1, var)
 #Varianz der Netz-Auslastung
 varianceNet <- apply(matrixNet, 1, var)
-#Plotten der Dichtefunktion der CPU-Auslastung für die VMs mit der höchsten Varianz
+#Plotten der Dichtefunktion der CPU-Auslastung fï¿½r die VMs mit der hï¿½chsten Varianz
 plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz')
 plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz')
 plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz')
