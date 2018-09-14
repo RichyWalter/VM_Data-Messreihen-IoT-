@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskName": "Task-Iot_Prog_Aufagbe1",
+      "appliesTo": "Iot_Prog_Aufagbe1.R",
+      "type": "launch"
+    }
+  ]
+}
