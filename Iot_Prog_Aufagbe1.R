@@ -126,58 +126,62 @@ createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
 #die eine standartisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
 #Dokumentieren Sie Ihre Beobachtung.
 
-#Eigene Funktion um standardisierte Matrix zu erzeugen
-myScale <- function(A) {
 
-    for(i in 1:ncol(A)){
-        b =A[,i]
-        A[,i] = (b - mean(b))/ sd(b) 
+
+#Funktion um die Funktionen zu vergleichen
+compareFunc <- function(whichMatrix) {
+
+    #Eigene Funktion um standardisierte Matrix zu erzeugen
+    myScale <- function(A) {
+
+        for(i in 1:ncol(A)){
+            b =A[,i]
+            A[,i] = (b - mean(b))/ sd(b) 
+        }
+
+        return (A)
     }
 
-    return (A)
+    #Vergleich zweier Matrizen
+    matEqual <- function(x, y) {
+
+        #Fehlertoleranz von 10^-3 ist moeglich
+        return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && isTRUE(all.equal(x, y, check.attributes = FALSE)))
+
+    }
+
+    #eigene scaled Matrizen erstellen
+    matrixCPUScaled <- t(myScale(t(matrixCPU)))
+    matrixMemScaled <- t(myScale(t(matrixMem)))
+    matrixNetScaled <- t(myScale(t(matrixNet)))
+
+    if (whichMatrix == "CPU") {
+        x <- matrixCPUScaled
+        y <- matrixCPU
+        z <- "CPU"
+    }else if(whichMatrix == "MEM") {
+        x <- matrixMemScaled 
+        y <- matrixMem
+        z <- "MEM"
+    }else if (whichMatrix == "NET") {
+        x <- matrixNetScaled
+        y <- matrixNet
+        z <- "NET"
+    }
+
+    #Vergleich mit der geschriebenen Funktion
+    if (matEqual(x, t(scale(t(y))))) {
+        print(paste("Die Ergebnisse der integrierten Funktion und der eigenen Funktion sind gleich fuer die Matrizen", z))
+    } else {
+        print(paste("Eigene Funktion fehlerhaft fuer die Matrizen",y))
+    }
+
 }
 
-#Vergleich zweier Matrizen
-matEqual <- function(x, y) {
-
-    #Fehlertoleranz von 10^-3 ist moeglich
-    return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && isTRUE(all.equal(x, y, check.attributes = FALSE)))
-
-}
-
-
-#Vergleich der Funktionen
-matrixCPUScaled <- t(myScale(t(matrixCPU))) 
-
-if(matEqual(matrixCPUScaled,t(scale(t(matrixCPU))))){
-  print("Die Matrizen der integrierte Funktion und der eigenen Funktion sind gleich")
-}else{
-  print("eigene Funktion fehlerhaft")
-}
-
-matrixCPUScaled[,1]
-blub = t(scale(t(matrixCPU)))
-blub[,1]
-
-matrixMemScaled <- t(myScale(t(matrixMem)))
-
-if (matEqual(matrixMemScaled, t(scale(t(matrixMem))))) {
-
-    print("c scale and myscale reesults are equal")
-
-} else {
-
-    print("myScale() failed")
-
-}
-
-matrixNetScaled <- t(myScale(t(matrixNet)))
-if(matEqual(matrixNetScaled,t(scale(t(matrixNet))))){
-
-  print("Net scale and myscale reesults are equal")
-} else {
-    print("myScale() failed")
-}
+#Funktion aufrufen um zu vergleichen
+compareFunc("CPU")
+compareFunc("MEM")
+compareFunc("NET")
 
 
 
