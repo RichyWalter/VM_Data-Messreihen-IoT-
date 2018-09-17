@@ -4,7 +4,8 @@
 
 #Einbindung von Plotly zur besseren Visualisierung der Metriken
 library(plotly)
-
+#Einbindung von rbenchmark zur einfacheren Performance-Messung
+library(rbenchmark)
 
 #Aufagbe 1-2
 #Lesen Sie die Messreihen und speichern Sie sie als Datenrahmen (Data Frame).
@@ -29,7 +30,6 @@ rowNamesNet <- rownames(dfNet)
 #Generiere NxM Matrizen aus den Datenrahmen. 
 #N ist die Anzahl der virtuellen Maschinen und M ist die Anzahl der Samples.
 #Es gibt also drei Matrizen: eine fuer die CPU, eine fuer MEM und eine fuer NET. 
-
 
 
 #Befuellung der Matrix mit Werten
@@ -126,12 +126,10 @@ createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
 #die eine standartisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
 #Dokumentieren Sie Ihre Beobachtung.
 
+#Die Funktionen unterhalb sind außerhalb der eigentlichen Funktion
+#da diese für die PerformanceMessung global verfuegbar sein sollten
 
-
-#Funktion um die Funktionen zu vergleichen
-compareFunc <- function(whichMatrix) {
-
-    #Eigene Funktion um standardisierte Matrix zu erzeugen
+#Eigene Funktion um standardisierte Matrix zu erzeugen
     myScale <- function(A) {
 
         for(i in 1:ncol(A)){
@@ -142,13 +140,16 @@ compareFunc <- function(whichMatrix) {
         return (A)
     }
 
-    #Vergleich zweier Matrizen
-    matEqual <- function(x, y) {
+#Vergleich zweier Matrizen
+matEqual <- function(x, y) {
 
-        #Fehlertoleranz von 10^-3 ist moeglich
-        return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && isTRUE(all.equal(x, y, check.attributes = FALSE)))
+    #Fehlertoleranz von 10^-3 ist moeglich
+    return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && isTRUE(all.equal(x, y, check.attributes = FALSE)))
 
-    }
+}
+
+#Funktion um die Funktionen zu vergleichen
+compareFunc <- function(whichMatrix) {
 
     #eigene scaled Matrizen erstellen
     matrixCPUScaled <- t(myScale(t(matrixCPU)))
@@ -183,7 +184,34 @@ compareFunc("CPU")
 compareFunc("MEM")
 compareFunc("NET")
 
+#Zusatz -> Performancemessung zwischen Scale() und myscale()
 
+doBenchmark <- function(inputMatrix, repCount,graphName) {
+
+    #Benchmark durchfuehren
+
+    plotP <-    benchmark("Myscale" = {
+            x <- myScale(inputMatrix)
+            },
+            "R-Implementierung" = {
+            x <- scale(inputMatrix)
+            },
+            replications = repCount,
+            columns = c("test", "replications","elapsed","relative", "user.self","sys.self"))
+
+    print(plotP)
+
+    #Grafiken plotten
+
+}
+
+#Erzeuge random Matrix mit mehr Werten für Lasttest
+randMatrix <- replicate(1000, rnorm(20))
+
+doBenchmark(matrixCPU, 2000,"BenchmarkCPU")
+doBenchmark(matrixMem, 2000,"BenchmarkMEM")
+doBenchmark(matrixNet, 2000,"BenchmarkNET")
+doBenchmark(randMatrix,2000,"BenchmarkRand")
 
 #Aufgabe 6
 #Generieren Sie ein 3-d-Array aus den drei Zeilenmatrizen(VMS vs Samples vs Ressourcen)
