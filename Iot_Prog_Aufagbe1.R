@@ -20,6 +20,10 @@ colNamesCPU <- colnames(dfCPU)
 colNamesMem <- colnames(dfMem)
 colNamesNet <- colnames(dfNet)
 
+rowNamesCPU <- rownames(dfCPU)
+rowNamesMem <- rownames(dfMem)
+rowNamesNet <- rownames(dfNet)
+
 
 #Aufgabe 3
 #Generiere NxM Matrizen aus den Datenrahmen. 
@@ -79,7 +83,7 @@ createHeatmap <- function(inputMatrix, inputColNames, graphName) {
     layout(title= graphName, xaxis = x)
 
     #HTML-File lokal erzeugen
-    htmlwidgets::saveWidget(as.widget(p), paste(graphName,".html",sep = ""))
+    htmlwidgets::saveWidget(as.widget(p),paste(graphName, ".html ", sep = ""))
 
 }
 
@@ -90,7 +94,7 @@ createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 #Aufgabe 4
 #Generieren eine Korrelationsmatrix(ATA) für jede Rohmatrix. 
 #Lesen Sie ueber eine Korrelationmatrix und erklaeren Sie ihre Bedeutung
-#(verwenden Sie statistische Werkzeuge fuer ihre Diskussion)
+#(Verwenden Sie statistische Werkzeuge fuer ihre Diskussion)
 
 #Jede Spalte der Matrix wird als Messreihe betrachtet.
 #Element der Korrelationsmatrix ist der Korrelationswert fuer jeweils eine Messreihe.
@@ -104,10 +108,19 @@ calcCorrelation <- function(A){
   return(result)
 }
 
+
 #Korrelationsmatrizen für die Ressourcen
 matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
+
+
+#erstellen der Korrelationsplots
+createHeatmap(matrixCPUCOR, c(1:179), "CPUCorrelationHeatmap")
+createHeatmap(matrixMemCOR, c(1:179), "MEMCorrelationHeatmap")
+createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
+
+
 
 #Aufgabe 5
 #Erstellen Sie eine standardisierte Matrix fuer jede Rohmatrix. Es gibt eine Standardfunktion namens scale,
@@ -176,8 +189,10 @@ generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
 #Der 3d Array aus CPU, Mem und Net
 threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
-#HTML-File lokal erzeugen
+#Funktion um einen 3D-Plot zu erzeugen
 
+
+#Erzeugung des 3D-Plots
 
 #Aufgabe 7
 #Plotten Sie die Dichtefunktion der CPU-Auslastung fuer die folgenden virtuellen Maschinen auf:
@@ -241,6 +256,7 @@ plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Au
 
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
 testAufg8 <- cor(matrixCPU, matrixMem)
+
 calcCorrelationTwoMat <- function(mat1, mat2){
   vecMat1 <- vector()
   vecMat2 <- vector()
@@ -258,6 +274,36 @@ calcCorrelationTwoMat <- function(mat1, mat2){
   }
   return(correlations)
 }
+
 correlationMatrix <- calcCorrelationTwoMat(matrixCPU, matrixMem)
 #Barplott der Korrelationen fuer jede VM
 barplot(correlationMatrix, ylim = c(-0.2, 0.2), names.arg = colNamesCPU, las = 2)
+
+#function um den Plot zu erzeugen
+createBarplot <- function(correlationInputMatrix, graphName) {
+
+    nummer <- c(1:length(correlationInputMatrix))
+    vec <- as.vector(correlationInputMatrix)
+    data <- data.frame(nummer, vec)
+    correlation <- correlationInputMatrix
+
+    p <- plot_ly(data, x = ~nummer, y = ~correlation, name = 'Korrelationsverlauf', type = 'scatter', mode = 'markers')
+
+    #HTML-File lokal erzeugen
+    htmlwidgets::saveWidget(as.widget(p), paste(graphName, ".html ", sep = ""))
+
+}
+
+#Funktion zur Erstellung eines Boxplots
+createBoxplot <- function(correlationInputMatrix, graphName) {
+
+    p <- plot_ly(x = ~correlationInputMatrix,y= "Messreihe", type = 'box', boxpoints = 'all', jitter = 0.3, pointpos = -1.8)
+    #HTML-File lokal erzeugen
+    htmlwidgets::saveWidget(as.widget(p), paste(graphName, ".html ", sep = ""))
+
+}
+
+
+#Plots zu Aufgabe 8 erzeugen
+createBarplot(correlationMatrix, "CPU-Mem_correlation")
+createBoxplot(correlationMatrix, "CPU-Mem_corr_boxplot")

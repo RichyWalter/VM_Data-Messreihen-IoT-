@@ -1,6 +1,4 @@
-CPUHeatmap.html
-MEMORYHeatmap.html
-NETHeatmap.html
+*.html
 .Rhistory
 .RData
 .vs/
