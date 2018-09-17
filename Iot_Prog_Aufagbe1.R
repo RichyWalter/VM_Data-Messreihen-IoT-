@@ -30,34 +30,31 @@ rowNamesNet <- rownames(dfNet)
 #N ist die Anzahl der virtuellen Maschinen und M ist die Anzahl der Samples.
 #Es gibt also drei Matrizen: eine fuer die CPU, eine fuer MEM und eine fuer NET. 
 
-#Generierung einer leeren Matrix mit den gegeben Groessen
-generateMatrix <-function(inputDF){
-  countSample <- dim(inputDF)[1]
-  countVM <- dim(inputDF)[2]
-  matOut <- matrix(0, nrow= countVM, ncol=countSample)
-  return(matOut) 
-}
+
 
 #Befuellung der Matrix mit Werten
-fillMatrix <- function(inDF, inMat){
-  for (i in 1:(dim(inDF)[1])) {
-    for (j in 1:(dim(inDF)[2])) {
-      inMat[j,i] <- inDF[i, j]
+fillMatrix <- function(inDF) {
+
+    #Erstellung einer Leermatrix mit den gleichen Größen
+    countSample <- dim(inDF)[1]
+    countVM <- dim(inDF)[2]
+    matOut <- matrix(0, nrow = countVM, ncol = countSample)
+
+    #Befuellung der Rohmatrix mit den Werten aus dem DataFrame
+    for (i in 1:(dim(inDF)[1])) {
+        for (j in 1:(dim(inDF)[2])) {
+            matOut[j,i] <- inDF[i, j]
+        }
     }
-  }
-  return(inMat)
+
+    return(matOut)
 }
 
 
-#Erstellung der Matrizen
-matrixCPURaw <- generateMatrix(dfCPU)
-matrixMemRaw <- generateMatrix(dfMem)
-matrixNetRaw <- generateMatrix(dfNet)
-
 #Befuellung der Matrizen mit den Werten aus den globalen Variablen
-matrixCPU <- fillMatrix(dfCPU, matrixCPURaw)
-matrixMem <- fillMatrix(dfMem, matrixMemRaw)
-matrixNet <- fillMatrix(dfNet, matrixNetRaw)
+matrixCPU <- fillMatrix(dfCPU)
+matrixMem <- fillMatrix(dfMem)
+matrixNet <- fillMatrix(dfNet)
 
 #Funktion um Plots zu den Matrizen zu erzeugen
 createHeatmap <- function(inputMatrix, inputColNames, graphName) {
@@ -98,14 +95,17 @@ createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 
 #Jede Spalte der Matrix wird als Messreihe betrachtet.
 #Element der Korrelationsmatrix ist der Korrelationswert fuer jeweils eine Messreihe.
-calcCorrelation <- function(A){
-  result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
-  for(i in 1:ncol(A)){
-    for(j in 1:ncol(A)){
-      result[i,j] = cor(A[,i],A[,j])
+calcCorrelation <- function(A) {
+
+    result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
+
+    for(i in 1:ncol(A)){
+        for(j in 1:ncol(A)){
+            result[i,j] = cor(A[,i],A[,j])
+        }
     }
-  }
-  return(result)
+
+    return(result)
 }
 
 
@@ -121,57 +121,64 @@ createHeatmap(matrixMemCOR, c(1:179), "MEMCorrelationHeatmap")
 createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
 
 
-
 #Aufgabe 5
 #Erstellen Sie eine standardisierte Matrix fuer jede Rohmatrix. Es gibt eine Standardfunktion namens scale,
 #die eine standartisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
 #Dokumentieren Sie Ihre Beobachtung.
 
 #Eigene Funktion um standardisierte Matrix zu erzeugen
-myScale <- function(A){
-  for(i in 1:ncol(A)){
-    b =A[,i]
-    A[,i] = (b - mean(b))/ sd(b) 
-  }
-  return (A)
+myScale <- function(A) {
+
+    for(i in 1:ncol(A)){
+        b =A[,i]
+        A[,i] = (b - mean(b))/ sd(b) 
+    }
+
+    return (A)
 }
 
 #Vergleich zweier Matrizen
-matEqual <- function(x, y)
-  return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && all(x == y))
+matEqual <- function(x, y) {
 
-# #Vergleich der Matrizen
-# m = matrix((1:9),3,3)
-# scale(m)
-# myScale(m)
-# if(matEqual(scale(m),myScale(m))){
-#   print("Die Matrizen der integrierte Funktion und der eigenen Funktion sind gleich")
-# }else
-#   print("myScale() failed")
+    #Fehlertoleranz von 10^-3 ist moeglich
+    return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && isTRUE(all.equal(x, y, check.attributes = FALSE)))
+
+}
 
 
 #Vergleich der Funktionen
 matrixCPUScaled <- t(myScale(t(matrixCPU))) 
+
 if(matEqual(matrixCPUScaled,t(scale(t(matrixCPU))))){
   print("Die Matrizen der integrierte Funktion und der eigenen Funktion sind gleich")
 }else{
   print("eigene Funktion fehlerhaft")
 }
+
 matrixCPUScaled[,1]
 blub = t(scale(t(matrixCPU)))
 blub[,1]
 
 matrixMemScaled <- t(myScale(t(matrixMem)))
-if(matEqual(matrixMemScaled,t(scale(t(matrixMem))))){
-  print("c scale and myscale reesults are equal")
-}else
-  print("myScale() failed")
+
+if (matEqual(matrixMemScaled, t(scale(t(matrixMem))))) {
+
+    print("c scale and myscale reesults are equal")
+
+} else {
+
+    print("myScale() failed")
+
+}
 
 matrixNetScaled <- t(myScale(t(matrixNet)))
 if(matEqual(matrixNetScaled,t(scale(t(matrixNet))))){
+
   print("Net scale and myscale reesults are equal")
-}else
-  print("myScale() failed")
+} else {
+    print("myScale() failed")
+}
+
 
 
 #Aufgabe 6
@@ -188,11 +195,6 @@ generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
 
 #Der 3d Array aus CPU, Mem und Net
 threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
-
-#Funktion um einen 3D-Plot zu erzeugen
-
-
-#Erzeugung des 3D-Plots
 
 #Aufgabe 7
 #Plotten Sie die Dichtefunktion der CPU-Auslastung fuer die folgenden virtuellen Maschinen auf:
@@ -255,8 +257,6 @@ plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Au
 #Gibt es eine Korrelation zwischen der Auslastung von CPU und Mem? Demostrieren Sie quantitatiy
 
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
-testAufg8 <- cor(matrixCPU, matrixMem)
-
 calcCorrelationTwoMat <- function(mat1, mat2){
   vecMat1 <- vector()
   vecMat2 <- vector()
@@ -276,6 +276,7 @@ calcCorrelationTwoMat <- function(mat1, mat2){
 }
 
 correlationMatrix <- calcCorrelationTwoMat(matrixCPU, matrixMem)
+
 #Barplott der Korrelationen fuer jede VM
 barplot(correlationMatrix, ylim = c(-0.2, 0.2), names.arg = colNamesCPU, las = 2)
 
