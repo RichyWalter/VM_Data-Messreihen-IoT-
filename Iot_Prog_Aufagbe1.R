@@ -2,6 +2,15 @@
 #Internet der Dinge
 #Gruppe 1: Oliver Graetsch, Franz Huebner,Richard Arnold, Richard Walter
 
+
+#Start der globalen Zeitmessung
+start_time <- Sys.time()
+
+#Echte Goenner surpressen die Warnings von Arnolds Pfusch. LG ausm Quellcode
+#Ne Spaß, aber die corr() gibt viele Warns die ich hiermit supress
+oldw <- getOption("warn")
+options(warn = -1)
+
 #Einbindung von Plotly zur besseren Visualisierung der Metriken
 library(plotly)
 #Einbindung von rbenchmark zur einfacheren Performance-Messung
@@ -95,8 +104,10 @@ createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 
 #Jede Spalte der Matrix wird als Messreihe betrachtet.
 #Element der Korrelationsmatrix ist der Korrelationswert fuer jeweils eine Messreihe.
+
 calcCorrelation <- function(A) {
 
+    #Zwischenergebnis erstellen
     result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
 
     for(i in 1:ncol(A)){
@@ -106,6 +117,7 @@ calcCorrelation <- function(A) {
     }
 
     return(result)
+
 }
 
 
@@ -123,11 +135,11 @@ createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
 
 #Aufgabe 5
 #Erstellen Sie eine standardisierte Matrix fuer jede Rohmatrix. Es gibt eine Standardfunktion namens scale,
-#die eine standartisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
+#die eine standardisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
 #Dokumentieren Sie Ihre Beobachtung.
 
 #Die Funktionen unterhalb sind außerhalb der eigentlichen Funktion
-#da diese für die PerformanceMessung global verfuegbar sein sollten
+#da diese für die Performancemessung global verfuegbar sein sollten
 
 #Eigene Funktion um standardisierte Matrix zu erzeugen
     myScale <- function(A) {
@@ -148,7 +160,7 @@ matEqual <- function(x, y) {
 
 }
 
-#Funktion um die Funktionen zu vergleichen
+#Funktion um die beiden Funktionen zu vergleichen
 compareFunc <- function(whichMatrix) {
 
     #eigene scaled Matrizen erstellen
@@ -197,15 +209,32 @@ doBenchmark <- function(inputMatrix, repCount,graphName) {
             x <- scale(inputMatrix)
             },
             replications = repCount,
-            columns = c("test", "replications","elapsed","relative", "user.self","sys.self"))
-
-    print(plotP)
+            columns = c("test", "elapsed","relative", "user.self"))
 
     #Grafiken plotten
+    p <- plotP %>%
+    plot_ly() %>%
+    add_trace(y = ~as.numeric(plotP[1,]), x = colnames(plotP), type = 'bar',
+             text = "Myscale()", textposition = 'auto',
+             marker = list(color = 'rgb(204,0,0)',
+             line = list(color = 'rgb(8,48,107)', width = 1.5,name = "Myscale()"))) %>%
+    add_trace(y = ~as.numeric(plotP[2,]), x = colnames(plotP), type = 'bar',
+             text = "Scale()", textposition = 'auto',
+             marker = list(color = 'rgb(51,204,0)',
+             line = list(color = 'rgb(8,48,107)', width = 1.5, name = "Scale()" ))) %>%
+
+    layout(title = "Benchmark myscale() vs scale()",
+                           barmode = 'group',
+                           xaxis = list(title = "Art der Messung"),
+                           yaxis = list(title = "Zeit in Sekunden"))
+
+    #HTML-File lokal erzeugen
+    htmlwidgets::saveWidget(as.widget(p), paste(graphName, ".html ", sep = ""))
+
 
 }
 
-#Erzeuge random Matrix mit mehr Werten für Lasttest
+#Erzeuge random Matrix mit mehrern Werten für einen Lasttest
 randMatrix <- replicate(1000, rnorm(20))
 
 doBenchmark(matrixCPU, 2000,"BenchmarkCPU")
@@ -340,3 +369,12 @@ createBoxplot <- function(correlationInputMatrix, graphName) {
 #Plots zu Aufgabe 8 erzeugen
 createBarplot(correlationMatrix, "CPU-Mem_correlation")
 createBoxplot(correlationMatrix, "CPU-Mem_corr_boxplot")
+
+#Warnings wieder freischalten
+options(warn = oldw)
+
+
+#Ende der globalen Zeitmessung
+end_time <- Sys.time()
+
+print(paste("Alles wurde erfolgreich durchgefuehrt. Benoetigte Zeit: ", (end_time-start_time)))
