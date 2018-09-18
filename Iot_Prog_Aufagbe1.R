@@ -7,7 +7,7 @@
 start_time <- Sys.time()
 
 #Echte Goenner surpressen die Warnings von Arnolds Pfusch. LG ausm Quellcode
-#Ne Spaß, aber die corr() gibt viele Warns die ich hiermit supress
+#Ne Spass, aber die corr() gibt viele Warns die ich hiermit supress
 oldw <- getOption("warn")
 options(warn = -1)
 
@@ -339,6 +339,7 @@ calcCorrelationTwoMat <- function(mat1, mat2){
 correlationMatrix <- calcCorrelationTwoMat(matrixCPU, matrixMem)
 
 #Barplott der Korrelationen fuer jede VM
+dev.new()
 barplot(correlationMatrix, ylim = c(-0.2, 0.2), names.arg = colNamesCPU, las = 2)
 
 #function um den Plot zu erzeugen
