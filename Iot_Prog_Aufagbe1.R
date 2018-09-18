@@ -44,7 +44,7 @@ rowNamesNet <- rownames(dfNet)
 #Befuellung der Matrix mit Werten
 fillMatrix <- function(inDF) {
 
-    #Erstellung einer Leermatrix mit den gleichen Größen
+    #Erstellung einer Leermatrix mit den gleichen Groessen
     countSample <- dim(inDF)[1]
     countVM <- dim(inDF)[2]
     matOut <- matrix(0, nrow = countVM, ncol = countSample)
@@ -98,7 +98,7 @@ createHeatmap(matrixMem,colNamesMem,"MEMORYHeatmap")
 createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 
 #Aufgabe 4
-#Generieren eine Korrelationsmatrix(ATA) für jede Rohmatrix. 
+#Generieren eine Korrelationsmatrix(ATA) fuer jede Rohmatrix. 
 #Lesen Sie ueber eine Korrelationmatrix und erklaeren Sie ihre Bedeutung
 #(Verwenden Sie statistische Werkzeuge fuer ihre Diskussion)
 
@@ -121,7 +121,7 @@ calcCorrelation <- function(A) {
 }
 
 
-#Korrelationsmatrizen für die Ressourcen
+#Korrelationsmatrizen fuer die Ressourcen
 matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
@@ -138,8 +138,8 @@ createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
 #die eine standardisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
 #Dokumentieren Sie Ihre Beobachtung.
 
-#Die Funktionen unterhalb sind außerhalb der eigentlichen Funktion
-#da diese für die Performancemessung global verfuegbar sein sollten
+#Die Funktionen unterhalb sind ausserhalb der eigentlichen Funktion
+#da diese fuer die Performancemessung global verfuegbar sein sollten
 
 #Eigene Funktion um standardisierte Matrix zu erzeugen
     myScale <- function(A) {
@@ -312,6 +312,25 @@ varianceNet <- apply(matrixNet, 1, var)
 plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz')
 plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz')
 plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz')
+
+#Zusammenfassen aller Plots mit plotly(erzeugt html-Dokument)
+#zu sehen ist ein Zwischenstand der die Verteilungsfunktionen der ersten 5 Elemente mit hoechster CPU Varianz zeigt
+#TODO In Funktion packen und fuer die beiden anderen Matrizen wiederholen
+#TODO Schauen ob man �ber globale Variablen die plotly PLots und R plots vereinfachen kann, ggf. Plotly in vorhandene Funktionen integrieren
+fit1 <- getDensityOfRow(getRankingOfElement(varianceCPU,1),matrixCPU)
+fit2 <- getDensityOfRow(getRankingOfElement(varianceCPU,2),matrixCPU)
+fit3 <- getDensityOfRow(getRankingOfElement(varianceCPU,3),matrixCPU)
+fit4 <- getDensityOfRow(getRankingOfElement(varianceCPU,4),matrixCPU)
+fit5 <- getDensityOfRow(getRankingOfElement(varianceCPU,5),matrixCPU)
+
+p <- plot_ly(x = fit1$x, y = fit1$y, type = "scatter", mode = "lines", fill = "tozeroy", yaxis = "y2", name = "Density1") %>%
+  add_trace(x = ~fit2$x, y = ~fit2$y, name = 'Density2', fill = 'tozeroy') %>%
+  add_trace(x = ~fit3$x, y = ~fit3$y, name = 'Density3', fill = 'tozeroy') %>%
+  add_trace(x = ~fit4$x, y = ~fit4$y, name = 'Density4', fill = 'tozeroy') %>%
+  add_trace(x = ~fit5$x, y = ~fit5$y, name = 'Density5', fill = 'tozeroy')
+
+#HTML-File lokal erzeugen
+htmlwidgets::saveWidget(as.widget(p), paste("test1234.html ", sep = ""))
 
 
 #Aufgabe 8 
