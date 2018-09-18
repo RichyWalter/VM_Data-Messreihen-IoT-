@@ -2,52 +2,68 @@
 #Internet der Dinge
 #Gruppe 1: Oliver Graetsch, Franz Huebner,Richard Arnold, Richard Walter
 
+
+#Start der globalen Zeitmessung
+start_time <- Sys.time()
+
+#Echte Goenner surpressen die Warnings von Arnolds Pfusch. LG ausm Quellcode
+#Ne Spaß, aber die corr() gibt viele Warns die ich hiermit supress
+oldw <- getOption("warn")
+options(warn = -1)
+
 #Einbindung von Plotly zur besseren Visualisierung der Metriken
 library(plotly)
+#Einbindung von rbenchmark zur einfacheren Performance-Messung
+library(rbenchmark)
 
+#Aufagbe 1-2
+#Lesen Sie die Messreihen und speichern Sie sie als Datenrahmen (Data Frame).
 
-#Aufagbe 1-2  
 #Einlesen der csv Dateien und Erzeugung der frames
 dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
 
 
-#Namen der Spalten f�r die Plots herausnehmen und speichern
+#Namen der Spalten fuer die Plots herausnehmen und speichern
 colNamesCPU <- colnames(dfCPU)
 colNamesMem <- colnames(dfMem)
 colNamesNet <- colnames(dfNet)
 
+rowNamesCPU <- rownames(dfCPU)
+rowNamesMem <- rownames(dfMem)
+rowNamesNet <- rownames(dfNet)
+
 
 #Aufgabe 3
-#Generierung einer leeren Matrix mit den gegeben Groe�en
-generateMatrix <-function(inputDF){
-  countSample <- dim(inputDF)[1]
-  countVM <- dim(inputDF)[2]
-  matOut <- matrix(0, nrow= countVM, ncol=countSample)
-  return(matOut) 
-}
+#Generiere NxM Matrizen aus den Datenrahmen. 
+#N ist die Anzahl der virtuellen Maschinen und M ist die Anzahl der Samples.
+#Es gibt also drei Matrizen: eine fuer die CPU, eine fuer MEM und eine fuer NET. 
 
-#Bef�llung der Matrix mit Werten
-fillMatrix <- function(inDF, inMat){
-  for (i in 1:(dim(inDF)[1])) {
-    for (j in 1:(dim(inDF)[2])) {
-      inMat[j,i] <- inDF[i, j]
+
+#Befuellung der Matrix mit Werten
+fillMatrix <- function(inDF) {
+
+    #Erstellung einer Leermatrix mit den gleichen Größen
+    countSample <- dim(inDF)[1]
+    countVM <- dim(inDF)[2]
+    matOut <- matrix(0, nrow = countVM, ncol = countSample)
+
+    #Befuellung der Rohmatrix mit den Werten aus dem DataFrame
+    for (i in 1:(dim(inDF)[1])) {
+        for (j in 1:(dim(inDF)[2])) {
+            matOut[j,i] <- inDF[i, j]
+        }
     }
-  }
-  return(inMat)
+
+    return(matOut)
 }
 
-
-#Erstellung der Matrizen
-matrixCPURaw <- generateMatrix(dfCPU)
-matrixMemRaw <- generateMatrix(dfMem)
-matrixNetRaw <- generateMatrix(dfNet)
 
 #Befuellung der Matrizen mit den Werten aus den globalen Variablen
-matrixCPU <- fillMatrix(dfCPU, matrixCPURaw)
-matrixMem <- fillMatrix(dfMem, matrixMemRaw)
-matrixNet <- fillMatrix(dfNet, matrixNetRaw)
+matrixCPU <- fillMatrix(dfCPU)
+matrixMem <- fillMatrix(dfMem)
+matrixNet <- fillMatrix(dfNet)
 
 #Funktion um Plots zu den Matrizen zu erzeugen
 createHeatmap <- function(inputMatrix, inputColNames, graphName) {
@@ -73,7 +89,7 @@ createHeatmap <- function(inputMatrix, inputColNames, graphName) {
     layout(title= graphName, xaxis = x)
 
     #HTML-File lokal erzeugen
-    htmlwidgets::saveWidget(as.widget(p), paste(graphName,".html",sep = ""))
+    htmlwidgets::saveWidget(as.widget(p),paste(graphName, ".html ", sep = ""))
 
 }
 
@@ -82,90 +98,168 @@ createHeatmap(matrixMem,colNamesMem,"MEMORYHeatmap")
 createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 
 #Aufgabe 4
+#Generieren eine Korrelationsmatrix(ATA) für jede Rohmatrix. 
+#Lesen Sie ueber eine Korrelationmatrix und erklaeren Sie ihre Bedeutung
+#(Verwenden Sie statistische Werkzeuge fuer ihre Diskussion)
 
-#A = matrix(t(c(1,2,4,64,32,8,16,128,256)),3,3)
-#jede Spalte der matrix wird als messreihe betrachtet
-#element der korrelationsmatrix ist der Korrelationswert f�r jeweil eine messreihe
-calcCorrelation <- function(A){
-  result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
-  for(i in 1:ncol(A)){
-    for(j in 1:ncol(A)){
-      result[i,j] = cor(A[,i],A[,j])
+#Jede Spalte der Matrix wird als Messreihe betrachtet.
+#Element der Korrelationsmatrix ist der Korrelationswert fuer jeweils eine Messreihe.
+
+calcCorrelation <- function(A) {
+
+    #Zwischenergebnis erstellen
+    result = matrix(c(1:(ncol(A)*ncol(A))),ncol(A),ncol(A))
+
+    for(i in 1:ncol(A)){
+        for(j in 1:ncol(A)){
+            result[i,j] = cor(A[,i],A[,j])
+        }
     }
-  }
-  return(result)
+
+    return(result)
+
 }
 
+
+#Korrelationsmatrizen für die Ressourcen
 matrixCPUCOR <- calcCorrelation(matrixCPU)
 matrixMemCOR <- calcCorrelation(matrixMem)
 matrixNetCOR <- calcCorrelation(matrixNet)
 
+
+#erstellen der Korrelationsplots
+createHeatmap(matrixCPUCOR, c(1:179), "CPUCorrelationHeatmap")
+createHeatmap(matrixMemCOR, c(1:179), "MEMCorrelationHeatmap")
+createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
+
+
 #Aufgabe 5
-myScale <- function(A){
-  for(i in 1:ncol(A)){
-    b =A[,i]
-    A[,i] = (b - mean(b))/ sd(b) 
-  }
-  return (A)
+#Erstellen Sie eine standardisierte Matrix fuer jede Rohmatrix. Es gibt eine Standardfunktion namens scale,
+#die eine standardisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
+#Dokumentieren Sie Ihre Beobachtung.
+
+#Die Funktionen unterhalb sind außerhalb der eigentlichen Funktion
+#da diese für die Performancemessung global verfuegbar sein sollten
+
+#Eigene Funktion um standardisierte Matrix zu erzeugen
+    myScale <- function(A) {
+
+        for(i in 1:ncol(A)){
+            b =A[,i]
+            A[,i] = (b - mean(b))/ sd(b) 
+        }
+
+        return (A)
+    }
+
+#Vergleich zweier Matrizen
+matEqual <- function(x, y) {
+
+    #Fehlertoleranz von 10^-3 ist moeglich
+    return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && isTRUE(all.equal(x, y, check.attributes = FALSE)))
+
 }
 
-matequal <- function(x, y)
-  return(is.matrix(x) && is.matrix(y) && dim(x) == dim(y) && all(x == y))
+#Funktion um die beiden Funktionen zu vergleichen
+compareFunc <- function(whichMatrix) {
 
-#small test begin
-m = matrix((1:9),3,3)
-scale(m)
-myScale(m)
-if(matequal(scale(m),myScale(m))){
-  print("cpu scale and myscale results are equal")
-}else
-  print("myScale() failed")
+    #eigene scaled Matrizen erstellen
+    matrixCPUScaled <- t(myScale(t(matrixCPU)))
+    matrixMemScaled <- t(myScale(t(matrixMem)))
+    matrixNetScaled <- t(myScale(t(matrixNet)))
 
-#end test
+    if (whichMatrix == "CPU") {
+        x <- matrixCPUScaled
+        y <- matrixCPU
+        z <- "CPU"
+    }else if(whichMatrix == "MEM") {
+        x <- matrixMemScaled 
+        y <- matrixMem
+        z <- "MEM"
+    }else if (whichMatrix == "NET") {
+        x <- matrixNetScaled
+        y <- matrixNet
+        z <- "NET"
+    }
 
-#vergleich beginn
-matrixCPUScaled <- t(myScale(t(matrixCPU))) 
-if(matequal(matrixCPUScaled,t(scale(t(matrixCPU))))){
-  print("cpu scale and myscale results are equal")
-}else{
-  print("myScale() failed")
+    #Vergleich mit der geschriebenen Funktion
+    if (matEqual(x, t(scale(t(y))))) {
+        print(paste("Die Ergebnisse der integrierten Funktion und der eigenen Funktion sind gleich fuer die Matrizen", z))
+    } else {
+        print(paste("Eigene Funktion fehlerhaft fuer die Matrizen",y))
+    }
+
 }
-matrixCPUScaled[,1]
-blub = t(scale(t(matrixCPU)))
-blub[,1]
 
-matrixMemScaled <- t(myScale(t(matrixMem)))
-if(matequal(matrixMemScaled,t(scale(t(matrixMem))))){
-  print("c scale and myscale reesults are equal")
-}else
-  print("myScale() failed")
+#Funktion aufrufen um zu vergleichen
+compareFunc("CPU")
+compareFunc("MEM")
+compareFunc("NET")
 
-matrixNetScaled <- t(myScale(t(matrixNet)))
-if(matequal(matrixNetScaled,t(scale(t(matrixNet))))){
-  print("Net scale and myscale reesults are equal")
-}else
-  print("myScale() failed")
-#vergleich ende
+#Zusatz -> Performancemessung zwischen Scale() und myscale()
+
+doBenchmark <- function(inputMatrix, repCount,graphName) {
+
+    #Benchmark durchfuehren
+
+    plotP <-    benchmark("Myscale" = {
+            x <- myScale(inputMatrix)
+            },
+            "R-Implementierung" = {
+            x <- scale(inputMatrix)
+            },
+            replications = repCount,
+            columns = c("test", "elapsed","relative", "user.self"))
+
+    #Grafiken plotten
+    p <- plotP %>%
+    plot_ly() %>%
+    add_trace(y = ~as.numeric(plotP[1,]), x = colnames(plotP), type = 'bar',
+             text = "Myscale()", textposition = 'auto',
+             marker = list(color = 'rgb(204,0,0)',
+             line = list(color = 'rgb(8,48,107)', width = 1.5,name = "Myscale()"))) %>%
+    add_trace(y = ~as.numeric(plotP[2,]), x = colnames(plotP), type = 'bar',
+             text = "Scale()", textposition = 'auto',
+             marker = list(color = 'rgb(51,204,0)',
+             line = list(color = 'rgb(8,48,107)', width = 1.5, name = "Scale()" ))) %>%
+
+    layout(title = "Benchmark myscale() vs scale()",
+                           barmode = 'group',
+                           xaxis = list(title = "Art der Messung"),
+                           yaxis = list(title = "Zeit in Sekunden"))
+
+    #HTML-File lokal erzeugen
+    htmlwidgets::saveWidget(as.widget(p), paste(graphName, ".html ", sep = ""))
 
 
-#aufgabe 6
+}
 
-#Funktion um einen 3 dimensionalen Array aus den 3 Zeilenmatrizen zu generieren
+#Erzeuge random Matrix mit mehrern Werten für einen Lasttest
+randMatrix <- replicate(1000, rnorm(20))
+
+doBenchmark(matrixCPU, 2000,"BenchmarkCPU")
+doBenchmark(matrixMem, 2000,"BenchmarkMEM")
+doBenchmark(matrixNet, 2000,"BenchmarkNET")
+doBenchmark(randMatrix,2000,"BenchmarkRand")
+
+#Aufgabe 6
+#Generieren Sie ein 3-d-Array aus den drei Zeilenmatrizen(VMS vs Samples vs Ressourcen)
+
+#Funktion um ein 3 dimensionales Feld(Array) aus den 3 Zeilenmatrizen zu generieren
 generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
 
-    #array (zeile,spalte,dimension)
+    #Array (Zeile,Spalte,Dimension)
     threeDimArray <- array(c(vmMatrix, samplesMatrix, ressourcenMatrix), c(nrow(vmMatrix), ncol(vmMatrix), 3))
 
     return(threeDimArray)
 }
 
-#der 3d Array mit aus cpu mem und net
+#Der 3d Array aus CPU, Mem und Net
 threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
-
-
-
 #Aufgabe 7
+#Plotten Sie die Dichtefunktion der CPU-Auslastung fuer die folgenden virtuellen Maschinen auf:
+
 #Index eines Elemtes im Vektor anhand seiner Groesse bestimmen
 getRankingOfElement <- function(inputVector, position){
   #if(position != 0){
@@ -185,6 +279,7 @@ getDensityOfRow <- function(row, rowMatrix){
   return(densityOfRow)
 }
 
+#Verteilungsfunktion der groessten Elemente einer Ressourcenmatrix plotten
 plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 'First 5 Elements'){
   #Ergebnisse ploten
   # Dafuer zunaechst den Index der Elemente mit den hoechsten Werten ermittlen
@@ -198,26 +293,31 @@ plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 
 }
 
 #Aufagbe 7a
+#Die fuenf virtuellen Maschinen, deren durchschnittliche CPU-Auslastung am hoechsten ist
+
 #Durchschnittliche CPU-Auslastung berechnen 
 means <- rowMeans(matrixCPU[,-1])
 plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert')
 
 #Aufgabe 7b
+#Die fuenf virtuellen Maschinen, deren Abweichungen am hoechsten sind
+
 #Varianz der CPU-Auslatung
 varianceCPU <- apply(matrixCPU, 1, var)
 #Varianz der Speicher-Auslastung
 varianceMem <- apply(matrixMem, 1, var)
 #Varianz der Netz-Auslastung
 varianceNet <- apply(matrixNet, 1, var)
-#Plotten der Dichtefunktion der CPU-Auslastung f�r die VMs mit der h�chsten Varianz
+#Plotten der Dichtefunktion der CPU-Auslastung fuer die VMs mit der hoechsten Varianz
 plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz')
 plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz')
 plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz')
 
 
 #Aufgabe 8 
+#Gibt es eine Korrelation zwischen der Auslastung von CPU und Mem? Demostrieren Sie quantitatiy
+
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
-testAufg8 <- cor(matrixCPU, matrixMem)
 calcCorrelationTwoMat <- function(mat1, mat2){
   vecMat1 <- vector()
   vecMat2 <- vector()
@@ -235,3 +335,46 @@ calcCorrelationTwoMat <- function(mat1, mat2){
   }
   return(correlations)
 }
+
+correlationMatrix <- calcCorrelationTwoMat(matrixCPU, matrixMem)
+
+#Barplott der Korrelationen fuer jede VM
+barplot(correlationMatrix, ylim = c(-0.2, 0.2), names.arg = colNamesCPU, las = 2)
+
+#function um den Plot zu erzeugen
+createBarplot <- function(correlationInputMatrix, graphName) {
+
+    nummer <- c(1:length(correlationInputMatrix))
+    vec <- as.vector(correlationInputMatrix)
+    data <- data.frame(nummer, vec)
+    correlation <- correlationInputMatrix
+
+    p <- plot_ly(data, x = ~nummer, y = ~correlation, name = 'Korrelationsverlauf', type = 'scatter', mode = 'markers')
+
+    #HTML-File lokal erzeugen
+    htmlwidgets::saveWidget(as.widget(p), paste(graphName, ".html ", sep = ""))
+
+}
+
+#Funktion zur Erstellung eines Boxplots
+createBoxplot <- function(correlationInputMatrix, graphName) {
+
+    p <- plot_ly(x = ~correlationInputMatrix,y= "Messreihe", type = 'box', boxpoints = 'all', jitter = 0.3, pointpos = -1.8)
+    #HTML-File lokal erzeugen
+    htmlwidgets::saveWidget(as.widget(p), paste(graphName, ".html ", sep = ""))
+
+}
+
+
+#Plots zu Aufgabe 8 erzeugen
+createBarplot(correlationMatrix, "CPU-Mem_correlation")
+createBoxplot(correlationMatrix, "CPU-Mem_corr_boxplot")
+
+#Warnings wieder freischalten
+options(warn = oldw)
+
+
+#Ende der globalen Zeitmessung
+end_time <- Sys.time()
+
+print(paste("Alles wurde erfolgreich durchgefuehrt. Benoetigte Zeit: ", (end_time-start_time)))

@@ -1,0 +1,5 @@
+*.html
+.Rhistory
+.RData
+.vs/
+plots/
