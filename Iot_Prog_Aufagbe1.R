@@ -280,16 +280,36 @@ getDensityOfRow <- function(row, rowMatrix){
 }
 
 #Verteilungsfunktion der groessten Elemente einer Ressourcenmatrix plotten
-plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 'First 5 Elements'){
+plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 'First 5 Elements', plotlyTitle = 'Density'){
+  #Index der Elemente mit den hoechsten Werten ermittlen und deren Verteilungsfunktion berechnen
+  firstElement <- getDensityOfRow(getRankingOfElement(indexVector,1),elemMatrix)
+  secondElement <- getDensityOfRow(getRankingOfElement(indexVector,2),elemMatrix)
+  thirdElement <- getDensityOfRow(getRankingOfElement(indexVector,3),elemMatrix)
+  fourthElement <- getDensityOfRow(getRankingOfElement(indexVector,4),elemMatrix)
+  fifthElement <- getDensityOfRow(getRankingOfElement(indexVector,5),elemMatrix)
   #Ergebnisse ploten
-  # Dafuer zunaechst den Index der Elemente mit den hoechsten Werten ermittlen
   par(mfrow=c(2,3))
-  plot(getDensityOfRow(getRankingOfElement(indexVector,1),elemMatrix), col = 'green', main = 'erstes Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,2),elemMatrix), col ='blue', main = 'zweites Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,3),elemMatrix), col ='red', main = 'drittes Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,4),elemMatrix), col ='magenta', main = 'viertes Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,5),elemMatrix), col ='orange', main = 'fuenftes Element')
+  plot(firstElement, col = 'green', main = 'erstes Element')
+  plot(secondElement, col ='blue', main = 'zweites Element')
+  plot(thirdElement, col ='red', main = 'drittes Element')
+  plot(fourthElement, col ='magenta', main = 'viertes Element')
+  plot(fifthElement, col ='orange', main = 'fuenftes Element')
   title(plotTitle,line = -1, outer = TRUE)
+  
+  #Zusammenfassen aller Plots mit plotly(erzeugt html-Dokument)
+  #fill = 'None'
+  p <- plot_ly(x = firstElement$x, y = firstElement$y, type = "scatter", mode = "lines", fill = 'tozeroy', yaxis = "y2", name = "Erstes Element") %>%
+    add_trace(x = ~secondElement$x, y = ~secondElement$y, name = 'Zweites Element', fill = 'tozeroy') %>%
+    add_trace(x = ~thirdElement$x, y = ~thirdElement$y, name = 'Drittes Element', fill = 'tozeroy') %>%
+    add_trace(x = ~fourthElement$x, y = ~fourthElement$y, name = 'Viertes Element', fill = 'tozeroy') %>%
+    add_trace(x = ~fifthElement$x, y = ~fifthElement$y, name = 'Fuenftes Element', fill = 'tozeroy') %>%
+    layout(title = plotTitle,
+           xaxis = list(title = "X"),
+           yaxis = list(title = "Y"))
+  
+  
+  #HTML-File lokal erzeugen
+  htmlwidgets::saveWidget(as.widget(p), paste(plotlyTitle, "_Density.html ", sep = ""))
 }
 
 #Aufagbe 7a
@@ -297,7 +317,7 @@ plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 
 
 #Durchschnittliche CPU-Auslastung berechnen 
 means <- rowMeans(matrixCPU[,-1])
-plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert')
+plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert', 'CPU_Means')
 
 #Aufgabe 7b
 #Die fuenf virtuellen Maschinen, deren Abweichungen am hoechsten sind
@@ -309,28 +329,9 @@ varianceMem <- apply(matrixMem, 1, var)
 #Varianz der Netz-Auslastung
 varianceNet <- apply(matrixNet, 1, var)
 #Plotten der Dichtefunktion der CPU-Auslastung fuer die VMs mit der hoechsten Varianz
-plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz')
-plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz')
-plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz')
-
-#Zusammenfassen aller Plots mit plotly(erzeugt html-Dokument)
-#zu sehen ist ein Zwischenstand der die Verteilungsfunktionen der ersten 5 Elemente mit hoechster CPU Varianz zeigt
-#TODO In Funktion packen und fuer die beiden anderen Matrizen wiederholen
-#TODO Schauen ob man über globale Variablen die plotly PLots und R plots vereinfachen kann, ggf. Plotly in vorhandene Funktionen integrieren
-fit1 <- getDensityOfRow(getRankingOfElement(varianceCPU,1),matrixCPU)
-fit2 <- getDensityOfRow(getRankingOfElement(varianceCPU,2),matrixCPU)
-fit3 <- getDensityOfRow(getRankingOfElement(varianceCPU,3),matrixCPU)
-fit4 <- getDensityOfRow(getRankingOfElement(varianceCPU,4),matrixCPU)
-fit5 <- getDensityOfRow(getRankingOfElement(varianceCPU,5),matrixCPU)
-
-p <- plot_ly(x = fit1$x, y = fit1$y, type = "scatter", mode = "lines", fill = "tozeroy", yaxis = "y2", name = "Density1") %>%
-  add_trace(x = ~fit2$x, y = ~fit2$y, name = 'Density2', fill = 'tozeroy') %>%
-  add_trace(x = ~fit3$x, y = ~fit3$y, name = 'Density3', fill = 'tozeroy') %>%
-  add_trace(x = ~fit4$x, y = ~fit4$y, name = 'Density4', fill = 'tozeroy') %>%
-  add_trace(x = ~fit5$x, y = ~fit5$y, name = 'Density5', fill = 'tozeroy')
-
-#HTML-File lokal erzeugen
-htmlwidgets::saveWidget(as.widget(p), paste("test1234.html ", sep = ""))
+plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz', 'CPU_Var')
+plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz', 'Mem_Var')
+plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz', 'Net_Var')
 
 
 #Aufgabe 8 
