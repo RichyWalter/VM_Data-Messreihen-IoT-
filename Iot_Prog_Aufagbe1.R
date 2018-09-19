@@ -209,7 +209,7 @@ doBenchmark <- function(inputMatrix, repCount,graphName) {
             x <- scale(inputMatrix)
             },
             replications = repCount,
-            columns = c("test", "elapsed","relative", "user.self"))
+            columns = c("elapsed","relative", "user.self"))
 
     #Grafiken plotten
     p <- plotP %>%
