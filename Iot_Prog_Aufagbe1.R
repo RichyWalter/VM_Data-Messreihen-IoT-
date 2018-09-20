@@ -6,6 +6,7 @@
 #Start der globalen Zeitmessung
 start_time <- Sys.time()
 
+
 #Echte Goenner surpressen die Warnings von Arnolds Pfusch. LG ausm Quellcode
 #Ne Spass, aber die corr() gibt viele Warns die ich hiermit supress
 oldw <- getOption("warn")
@@ -90,6 +91,7 @@ createHeatmap <- function(inputMatrix, inputColNames, graphName) {
 
     #HTML-File lokal erzeugen
     htmlwidgets::saveWidget(as.widget(p),paste(graphName, ".html ", sep = ""))
+
 
 }
 
@@ -310,6 +312,7 @@ plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 
   
   #HTML-File lokal erzeugen
   htmlwidgets::saveWidget(as.widget(p), paste(plotlyTitle, "_Density.html ", sep = ""))
+
 }
 
 #Aufagbe 7a
