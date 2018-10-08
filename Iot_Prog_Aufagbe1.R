@@ -124,9 +124,9 @@ calcCorrelation <- function(A) {
 
 
 #Korrelationsmatrizen fuer die Ressourcen
-matrixCPUCOR <- calcCorrelation(matrixCPU)
-matrixMemCOR <- calcCorrelation(matrixMem)
-matrixNetCOR <- calcCorrelation(matrixNet)
+matrixCPUCOR <- t(calcCorrelation(t(matrixCPU)))
+matrixMemCOR <- t(calcCorrelation(t(matrixMem)))
+matrixNetCOR <- t(calcCorrelation(t(matrixNet)))
 
 
 #erstellen der Korrelationsplots
