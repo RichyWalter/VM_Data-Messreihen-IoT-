@@ -333,12 +333,12 @@ varianceMem <- apply(matrixMem, 1, var)
 varianceNet <- apply(matrixNet, 1, var)
 #Plotten der Dichtefunktion der CPU-Auslastung fuer die VMs mit der hoechsten Varianz
 plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz', 'CPU_Var')
-plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz', 'Mem_Var')
+plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastungs-Varianz', 'Mem_Var')
 plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz', 'Net_Var')
 
 
 #Aufgabe 8 
-#Gibt es eine Korrelation zwischen der Auslastung von CPU und Mem? Demostrieren Sie quantitatiy
+#Gibt es eine Korrelation zwischen der Auslastung von CPU und Mem? Demostrieren Sie quantitativ
 
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
 calcCorrelationTwoMat <- function(mat1, mat2){
