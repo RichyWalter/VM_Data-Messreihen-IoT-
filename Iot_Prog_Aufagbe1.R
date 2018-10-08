@@ -130,9 +130,9 @@ matrixNetCOR <- t(calcCorrelation(t(matrixNet)))
 
 
 #erstellen der Korrelationsplots
-createHeatmap(matrixCPUCOR, c(1:179), "CPUCorrelationHeatmap")
-createHeatmap(matrixMemCOR, c(1:179), "MEMCorrelationHeatmap")
-createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
+createHeatmap(matrixCPUCOR, c(0:35), "CPUCorrelationHeatmap")
+createHeatmap(matrixMemCOR, c(0:35), "MEMCorrelationHeatmap")
+createHeatmap(matrixNetCOR, c(0:35), "NETCorrelationHeatmap")
 
 
 #Aufgabe 5
