@@ -264,9 +264,9 @@ threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
 #Index eines Elemtes im Vektor anhand seiner Groesse bestimmen
 getRankingOfElement <- function(inputVector, position){
-  #if(position != 0){
-    position <- position - 1  
-  #} 
+  
+  position <- position - 1
+    
   rankedElem <- (which(inputVector==sort(inputVector,partial=length(inputVector)-position)[length(inputVector)-position]))
   return(rankedElem)
 }
