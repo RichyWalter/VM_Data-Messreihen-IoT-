@@ -7,8 +7,7 @@
 start_time <- Sys.time()
 
 
-#Echte Goenner surpressen die Warnings von Arnolds Pfusch. LG ausm Quellcode
-#Ne Spass, aber die corr() gibt viele Warns die ich hiermit supress
+#Die corr()-Funktion gibt viele Warns die an dieser Stelle supressed werden
 oldw <- getOption("warn")
 options(warn = -1)
 
@@ -17,6 +16,7 @@ library(plotly)
 #Einbindung von rbenchmark zur einfacheren Performance-Messung
 library(rbenchmark)
 
+
 #Aufagbe 1-2
 #Lesen Sie die Messreihen und speichern Sie sie als Datenrahmen (Data Frame).
 
@@ -24,7 +24,6 @@ library(rbenchmark)
 dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
-
 
 #Namen der Spalten fuer die Plots herausnehmen und speichern
 colNamesCPU <- colnames(dfCPU)
@@ -45,7 +44,6 @@ rowNamesNet <- rownames(dfNet)
 #N ist die Anzahl der virtuellen Maschinen und M ist die Anzahl der Samples.
 #Es gibt also drei Matrizen: eine fuer die CPU, eine fuer MEM und eine fuer NET. 
 
-
 #Befuellung der Matrix mit Werten
 fillMatrix <- function(inDF) {
 
@@ -63,7 +61,6 @@ fillMatrix <- function(inDF) {
 
     return(matOut)
 }
-
 
 #Befuellung der Matrizen mit den Werten aus den globalen Variablen
 matrixCPU <- fillMatrix(dfCPU)
@@ -96,12 +93,12 @@ createHeatmap <- function(inputMatrix, inputColNames, graphName) {
     #HTML-File lokal erzeugen
     htmlwidgets::saveWidget(as.widget(p),paste(graphName, ".html ", sep = ""))
 
-
 }
 
 createHeatmap(matrixCPU,colNamesCPU,"CPUHeatmap")
 createHeatmap(matrixMem,colNamesMem,"MEMORYHeatmap")
 createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
+
 
 #Aufgabe 4
 #Generieren eine Korrelationsmatrix(ATA) fuer jede Rohmatrix. 
@@ -126,12 +123,10 @@ calcCorrelation <- function(A) {
 
 }
 
-
 #Korrelationsmatrizen fuer die Ressourcen
 matrixCPUCOR <- t(calcCorrelation(t(matrixCPU)))
 matrixMemCOR <- t(calcCorrelation(t(matrixMem)))
 matrixNetCOR <- t(calcCorrelation(t(matrixNet)))
-
 
 #erstellen der Korrelationsplots
 createHeatmap(matrixCPUCOR, c(0:35), "CPUCorrelationHeatmap")
@@ -248,6 +243,7 @@ doBenchmark(matrixMem, 2000,"BenchmarkMEM")
 doBenchmark(matrixNet, 2000,"BenchmarkNET")
 doBenchmark(randMatrix,2000,"BenchmarkRand")
 
+
 #Aufgabe 6
 #Generieren Sie ein 3-d-Array aus den drei Zeilenmatrizen(VMS vs Samples vs Ressourcen)
 
@@ -262,6 +258,7 @@ generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
 
 #Der 3d Array aus CPU, Mem und Net
 threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
+
 
 #Aufgabe 7
 #Plotten Sie die Dichtefunktion der CPU-Auslastung fuer die folgenden virtuellen Maschinen auf:
@@ -325,12 +322,14 @@ plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 
 
 }
 
+
 #Aufagbe 7a
 #Die fuenf virtuellen Maschinen, deren durchschnittliche CPU-Auslastung am hoechsten ist
 
 #Durchschnittliche CPU-Auslastung berechnen 
 means <- rowMeans(matrixCPU[,-1])
 plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert', 'CPU_Means')
+
 
 #Aufgabe 7b
 #Die fuenf virtuellen Maschinen, deren Abweichungen am hoechsten sind
@@ -399,14 +398,12 @@ createBoxplot <- function(correlationInputMatrix, graphName) {
 
 }
 
-
 #Plots zu Aufgabe 8 erzeugen
 createBarplot(correlationMatrix, "CPU-Mem_correlation")
 createBoxplot(correlationMatrix, "CPU-Mem_corr_boxplot")
 
 #Warnings wieder freischalten
 options(warn = oldw)
-
 
 #Ende der globalen Zeitmessung
 end_time <- Sys.time()
