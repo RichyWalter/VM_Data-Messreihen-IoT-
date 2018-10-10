@@ -31,6 +31,10 @@ colNamesCPU <- colnames(dfCPU)
 colNamesMem <- colnames(dfMem)
 colNamesNet <- colnames(dfNet)
 
+cleanColNamesCPU <- gsub("^.*?Nutzung...","",colnames(dfCPU))
+cleanColNamesMem <- gsub("^.*?Nutzung...","",colnames(dfMem))
+cleanColNamesNet <- gsub("^.*?Nutzung...","",colnames(dfNet))
+
 rowNamesCPU <- rownames(dfCPU)
 rowNamesMem <- rownames(dfMem)
 rowNamesNet <- rownames(dfNet)
@@ -289,22 +293,28 @@ plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 
   thirdElement <- getDensityOfRow(getRankingOfElement(indexVector,3),elemMatrix)
   fourthElement <- getDensityOfRow(getRankingOfElement(indexVector,4),elemMatrix)
   fifthElement <- getDensityOfRow(getRankingOfElement(indexVector,5),elemMatrix)
+  
+  VMNamesVector <- c()
+  #Namen der VMs ermitteln
+  for (i in 1:5){
+    VMNamesVector <- c(VMNamesVector, cleanColNamesCPU[getRankingOfElement(indexVector,i)])
+  }
   #Ergebnisse ploten
   par(mfrow=c(2,3))
-  plot(firstElement, col = 'green', main = 'erstes Element')
-  plot(secondElement, col ='blue', main = 'zweites Element')
-  plot(thirdElement, col ='red', main = 'drittes Element')
-  plot(fourthElement, col ='magenta', main = 'viertes Element')
-  plot(fifthElement, col ='orange', main = 'fuenftes Element')
+  plot(firstElement, col = 'green', main = VMNamesVector[1])
+  plot(secondElement, col ='blue', main = VMNamesVector[2])
+  plot(thirdElement, col ='red', main = VMNamesVector[3])
+  plot(fourthElement, col ='magenta', main = VMNamesVector[4])
+  plot(fifthElement, col ='orange', main = VMNamesVector[5])
   title(plotTitle,line = -1, outer = TRUE)
   
   #Zusammenfassen aller Plots mit plotly(erzeugt html-Dokument)
   #fill = 'None'
-  p <- plot_ly(x = firstElement$x, y = firstElement$y, type = "scatter", mode = "lines", fill = 'tozeroy', yaxis = "y2", name = "Erstes Element") %>%
-    add_trace(x = ~secondElement$x, y = ~secondElement$y, name = 'Zweites Element', fill = 'tozeroy') %>%
-    add_trace(x = ~thirdElement$x, y = ~thirdElement$y, name = 'Drittes Element', fill = 'tozeroy') %>%
-    add_trace(x = ~fourthElement$x, y = ~fourthElement$y, name = 'Viertes Element', fill = 'tozeroy') %>%
-    add_trace(x = ~fifthElement$x, y = ~fifthElement$y, name = 'Fuenftes Element', fill = 'tozeroy') %>%
+  p <- plot_ly(x = firstElement$x, y = firstElement$y, type = "scatter", mode = "lines", fill = 'tozeroy', yaxis = "y2", name = VMNamesVector[1]) %>%
+    add_trace(x = ~secondElement$x, y = ~secondElement$y, name = VMNamesVector[2], fill = 'tozeroy') %>%
+    add_trace(x = ~thirdElement$x, y = ~thirdElement$y, name = VMNamesVector[3], fill = 'tozeroy') %>%
+    add_trace(x = ~fourthElement$x, y = ~fourthElement$y, name = VMNamesVector[4], fill = 'tozeroy') %>%
+    add_trace(x = ~fifthElement$x, y = ~fifthElement$y, name = VMNamesVector[5], fill = 'tozeroy') %>%
     layout(title = plotTitle,
            xaxis = list(title = "X"),
            yaxis = list(title = "Y"))
