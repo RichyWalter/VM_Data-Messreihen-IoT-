@@ -6,8 +6,8 @@
 #Start der globalen Zeitmessung
 start_time <- Sys.time()
 
-#Echte Goenner surpressen die Warnings von Arnolds Pfusch. LG ausm Quellcode
-#Ne Spaß, aber die corr() gibt viele Warns die ich hiermit supress
+
+#Die corr()-Funktion gibt viele Warns die an dieser Stelle supressed werden
 oldw <- getOption("warn")
 options(warn = -1)
 
@@ -15,6 +15,7 @@ options(warn = -1)
 library(plotly)
 #Einbindung von rbenchmark zur einfacheren Performance-Messung
 library(rbenchmark)
+
 
 #Aufagbe 1-2
 #Lesen Sie die Messreihen und speichern Sie sie als Datenrahmen (Data Frame).
@@ -24,11 +25,14 @@ dfCPU <- read.csv(file="./data/cpu.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfMem <- read.csv(file="./data/mem.csv",head=TRUE,sep=";",stringsAsFactors=F)
 dfNet <- read.csv(file="./data/net.csv",head=TRUE,sep=";",stringsAsFactors=F)
 
-
 #Namen der Spalten fuer die Plots herausnehmen und speichern
 colNamesCPU <- colnames(dfCPU)
 colNamesMem <- colnames(dfMem)
 colNamesNet <- colnames(dfNet)
+
+cleanColNamesCPU <- gsub("^.*?Nutzung...","",colnames(dfCPU))
+cleanColNamesMem <- gsub("^.*?Nutzung...","",colnames(dfMem))
+cleanColNamesNet <- gsub("^.*?Nutzung...","",colnames(dfNet))
 
 rowNamesCPU <- rownames(dfCPU)
 rowNamesMem <- rownames(dfMem)
@@ -40,11 +44,10 @@ rowNamesNet <- rownames(dfNet)
 #N ist die Anzahl der virtuellen Maschinen und M ist die Anzahl der Samples.
 #Es gibt also drei Matrizen: eine fuer die CPU, eine fuer MEM und eine fuer NET. 
 
-
 #Befuellung der Matrix mit Werten
 fillMatrix <- function(inDF) {
 
-    #Erstellung einer Leermatrix mit den gleichen Größen
+    #Erstellung einer Leermatrix mit den gleichen Groessen
     countSample <- dim(inDF)[1]
     countVM <- dim(inDF)[2]
     matOut <- matrix(0, nrow = countVM, ncol = countSample)
@@ -58,7 +61,6 @@ fillMatrix <- function(inDF) {
 
     return(matOut)
 }
-
 
 #Befuellung der Matrizen mit den Werten aus den globalen Variablen
 matrixCPU <- fillMatrix(dfCPU)
@@ -97,8 +99,9 @@ createHeatmap(matrixCPU,colNamesCPU,"CPUHeatmap")
 createHeatmap(matrixMem,colNamesMem,"MEMORYHeatmap")
 createHeatmap(matrixNet,colNamesNet,"NETHeatmap")
 
+
 #Aufgabe 4
-#Generieren eine Korrelationsmatrix(ATA) für jede Rohmatrix. 
+#Generieren eine Korrelationsmatrix(ATA) fuer jede Rohmatrix. 
 #Lesen Sie ueber eine Korrelationmatrix und erklaeren Sie ihre Bedeutung
 #(Verwenden Sie statistische Werkzeuge fuer ihre Diskussion)
 
@@ -120,17 +123,15 @@ calcCorrelation <- function(A) {
 
 }
 
-
-#Korrelationsmatrizen für die Ressourcen
-matrixCPUCOR <- calcCorrelation(matrixCPU)
-matrixMemCOR <- calcCorrelation(matrixMem)
-matrixNetCOR <- calcCorrelation(matrixNet)
-
+#Korrelationsmatrizen fuer die Ressourcen
+matrixCPUCOR <- t(calcCorrelation(t(matrixCPU)))
+matrixMemCOR <- t(calcCorrelation(t(matrixMem)))
+matrixNetCOR <- t(calcCorrelation(t(matrixNet)))
 
 #erstellen der Korrelationsplots
-createHeatmap(matrixCPUCOR, c(1:179), "CPUCorrelationHeatmap")
-createHeatmap(matrixMemCOR, c(1:179), "MEMCorrelationHeatmap")
-createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
+createHeatmap(matrixCPUCOR, c(0:35), "CPUCorrelationHeatmap")
+createHeatmap(matrixMemCOR, c(0:35), "MEMCorrelationHeatmap")
+createHeatmap(matrixNetCOR, c(0:35), "NETCorrelationHeatmap")
 
 
 #Aufgabe 5
@@ -138,8 +139,8 @@ createHeatmap(matrixNetCOR, c(1:179), "NETCorrelationHeatmap")
 #die eine standardisierte Matrix generieren kann. Vergleichen Sie ihte Ausgabe mit der Ausgabe dieser Funktion.
 #Dokumentieren Sie Ihre Beobachtung.
 
-#Die Funktionen unterhalb sind außerhalb der eigentlichen Funktion
-#da diese für die Performancemessung global verfuegbar sein sollten
+#Die Funktionen unterhalb sind ausserhalb der eigentlichen Funktion
+#da diese fuer die Performancemessung global verfuegbar sein sollten
 
 #Eigene Funktion um standardisierte Matrix zu erzeugen
     myScale <- function(A) {
@@ -209,7 +210,7 @@ doBenchmark <- function(inputMatrix, repCount,graphName) {
             x <- scale(inputMatrix)
             },
             replications = repCount,
-            columns = c("test", "elapsed","relative", "user.self"))
+            columns = c("elapsed","relative", "user.self"))
 
     #Grafiken plotten
     p <- plotP %>%
@@ -242,6 +243,7 @@ doBenchmark(matrixMem, 2000,"BenchmarkMEM")
 doBenchmark(matrixNet, 2000,"BenchmarkNET")
 doBenchmark(randMatrix,2000,"BenchmarkRand")
 
+
 #Aufgabe 6
 #Generieren Sie ein 3-d-Array aus den drei Zeilenmatrizen(VMS vs Samples vs Ressourcen)
 
@@ -257,14 +259,15 @@ generateThreeDimArray <- function(vmMatrix, samplesMatrix, ressourcenMatrix) {
 #Der 3d Array aus CPU, Mem und Net
 threeDimArray <- generateThreeDimArray(matrixCPU, matrixMem, matrixNet)
 
+
 #Aufgabe 7
 #Plotten Sie die Dichtefunktion der CPU-Auslastung fuer die folgenden virtuellen Maschinen auf:
 
 #Index eines Elemtes im Vektor anhand seiner Groesse bestimmen
 getRankingOfElement <- function(inputVector, position){
-  #if(position != 0){
-    position <- position - 1  
-  #} 
+  
+  position <- position - 1
+    
   rankedElem <- (which(inputVector==sort(inputVector,partial=length(inputVector)-position)[length(inputVector)-position]))
   return(rankedElem)
 }
@@ -280,24 +283,53 @@ getDensityOfRow <- function(row, rowMatrix){
 }
 
 #Verteilungsfunktion der groessten Elemente einer Ressourcenmatrix plotten
-plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 'First 5 Elements'){
+plotDensityOfFirstFiveElements <- function(indexVector, elemMatrix, plotTitle = 'First 5 Elements', plotlyTitle = 'Density'){
+  #Index der Elemente mit den hoechsten Werten ermittlen und deren Verteilungsfunktion berechnen
+  firstElement <- getDensityOfRow(getRankingOfElement(indexVector,1),elemMatrix)
+  secondElement <- getDensityOfRow(getRankingOfElement(indexVector,2),elemMatrix)
+  thirdElement <- getDensityOfRow(getRankingOfElement(indexVector,3),elemMatrix)
+  fourthElement <- getDensityOfRow(getRankingOfElement(indexVector,4),elemMatrix)
+  fifthElement <- getDensityOfRow(getRankingOfElement(indexVector,5),elemMatrix)
+  
+  VMNamesVector <- c()
+  #Namen der VMs ermitteln
+  for (i in 1:5){
+    VMNamesVector <- c(VMNamesVector, cleanColNamesCPU[getRankingOfElement(indexVector,i)])
+  }
   #Ergebnisse ploten
-  # Dafuer zunaechst den Index der Elemente mit den hoechsten Werten ermittlen
   par(mfrow=c(2,3))
-  plot(getDensityOfRow(getRankingOfElement(indexVector,1),elemMatrix), col = 'green', main = 'erstes Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,2),elemMatrix), col ='blue', main = 'zweites Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,3),elemMatrix), col ='red', main = 'drittes Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,4),elemMatrix), col ='magenta', main = 'viertes Element')
-  plot(getDensityOfRow(getRankingOfElement(indexVector,5),elemMatrix), col ='orange', main = 'fuenftes Element')
+  plot(firstElement, col = 'green', main = VMNamesVector[1])
+  plot(secondElement, col ='blue', main = VMNamesVector[2])
+  plot(thirdElement, col ='red', main = VMNamesVector[3])
+  plot(fourthElement, col ='magenta', main = VMNamesVector[4])
+  plot(fifthElement, col ='orange', main = VMNamesVector[5])
   title(plotTitle,line = -1, outer = TRUE)
+  
+  #Zusammenfassen aller Plots mit plotly(erzeugt html-Dokument)
+  #fill = 'None'
+  p <- plot_ly(x = firstElement$x, y = firstElement$y, type = "scatter", mode = "lines", fill = 'tozeroy', yaxis = "y2", name = VMNamesVector[1]) %>%
+    add_trace(x = ~secondElement$x, y = ~secondElement$y, name = VMNamesVector[2], fill = 'tozeroy') %>%
+    add_trace(x = ~thirdElement$x, y = ~thirdElement$y, name = VMNamesVector[3], fill = 'tozeroy') %>%
+    add_trace(x = ~fourthElement$x, y = ~fourthElement$y, name = VMNamesVector[4], fill = 'tozeroy') %>%
+    add_trace(x = ~fifthElement$x, y = ~fifthElement$y, name = VMNamesVector[5], fill = 'tozeroy') %>%
+    layout(title = plotTitle,
+           xaxis = list(title = "X"),
+           yaxis = list(title = "Y"))
+  
+  
+  #HTML-File lokal erzeugen
+  htmlwidgets::saveWidget(as.widget(p), paste(plotlyTitle, "_Density.html ", sep = ""))
+
 }
+
 
 #Aufagbe 7a
 #Die fuenf virtuellen Maschinen, deren durchschnittliche CPU-Auslastung am hoechsten ist
 
 #Durchschnittliche CPU-Auslastung berechnen 
 means <- rowMeans(matrixCPU[,-1])
-plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert')
+plotDensityOfFirstFiveElements(means, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechstem Mittelwert', 'CPU_Means')
+
 
 #Aufgabe 7b
 #Die fuenf virtuellen Maschinen, deren Abweichungen am hoechsten sind
@@ -309,13 +341,13 @@ varianceMem <- apply(matrixMem, 1, var)
 #Varianz der Netz-Auslastung
 varianceNet <- apply(matrixNet, 1, var)
 #Plotten der Dichtefunktion der CPU-Auslastung fuer die VMs mit der hoechsten Varianz
-plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz')
-plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastugs-Varianz')
-plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz')
+plotDensityOfFirstFiveElements(varianceCPU, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster CPU-Varianz', 'CPU_Var')
+plotDensityOfFirstFiveElements(varianceMem, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Speicherauslastungs-Varianz', 'Mem_Var')
+plotDensityOfFirstFiveElements(varianceNet, matrixCPU,'Dichtefunktion der CPU-Auslastung bei hoechster Netzauslastungs-Varianz', 'Net_Var')
 
 
 #Aufgabe 8 
-#Gibt es eine Korrelation zwischen der Auslastung von CPU und Mem? Demostrieren Sie quantitatiy
+#Gibt es eine Korrelation zwischen der Auslastung von CPU und Mem? Demostrieren Sie quantitativ
 
 #Berechnung der Korrelation zwischen CPU und MEM Auslastung
 calcCorrelationTwoMat <- function(mat1, mat2){
@@ -339,6 +371,7 @@ calcCorrelationTwoMat <- function(mat1, mat2){
 correlationMatrix <- calcCorrelationTwoMat(matrixCPU, matrixMem)
 
 #Barplott der Korrelationen fuer jede VM
+dev.new()
 barplot(correlationMatrix, ylim = c(-0.2, 0.2), names.arg = colNamesCPU, las = 2)
 
 #function um den Plot zu erzeugen
@@ -365,14 +398,12 @@ createBoxplot <- function(correlationInputMatrix, graphName) {
 
 }
 
-
 #Plots zu Aufgabe 8 erzeugen
 createBarplot(correlationMatrix, "CPU-Mem_correlation")
 createBoxplot(correlationMatrix, "CPU-Mem_corr_boxplot")
 
 #Warnings wieder freischalten
 options(warn = oldw)
-
 
 #Ende der globalen Zeitmessung
 end_time <- Sys.time()
